@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 import com.parzivail.pswg.container.SwgSounds;
 import com.parzivail.pswg.item.IDefaultNbtProvider;
 import com.parzivail.util.item.ICustomVisualItemEquality;
-import com.parzivail.util.item.ItemStackEntityAttributeModifiers;
+import net.fabricmc.fabric.api.tool.attribute.v1.DynamicAttributeTool;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -21,8 +21,9 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-public class LightsaberItem extends SwordItem implements ItemStackEntityAttributeModifiers, ICustomVisualItemEquality, IDefaultNbtProvider
+public class LightsaberItem extends SwordItem implements DynamicAttributeTool, ICustomVisualItemEquality, IDefaultNbtProvider
 {
 	private final ImmutableMultimap<EntityAttribute, EntityAttributeModifier> attribModsOff;
 	private final ImmutableMultimap<EntityAttribute, EntityAttributeModifier> attribModsOnMainhand;
@@ -96,7 +97,7 @@ public class LightsaberItem extends SwordItem implements ItemStackEntityAttribut
 	}
 
 	@Override
-	public ImmutableMultimap<EntityAttribute, EntityAttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
+	public Multimap<EntityAttribute, EntityAttributeModifier> getDynamicModifiers(EquipmentSlot slot, ItemStack stack, @Nullable LivingEntity user)
 	{
 		switch (slot)
 		{

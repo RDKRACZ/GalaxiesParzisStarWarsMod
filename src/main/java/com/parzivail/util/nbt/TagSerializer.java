@@ -73,11 +73,13 @@ public class TagSerializer
 
 	private static Field[] getClassFields(Class<?> clazz)
 	{
-		if (fieldCache.containsKey(clazz))
-			return fieldCache.get(clazz);
+		// TODO: perhaps use computeIfAbsent?
+		Field[] fields = fieldCache.get(clazz);
+		if (fields != null)
+			return fields;
 		else
 		{
-			Field[] fields = clazz.getFields();
+			fields = clazz.getFields();
 			Arrays.sort(fields, Comparator.comparing(Field::getName));
 			fieldCache.put(clazz, fields);
 			return fields;
