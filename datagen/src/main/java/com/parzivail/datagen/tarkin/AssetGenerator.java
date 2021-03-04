@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 
 public class AssetGenerator
 {
-	private static Path rootDir = Paths.get("..", "src", "main", "resources");
+	private static Path rootDir = Paths.get("..", "mod", "src", "main", "resources");
 
 	public static Identifier getRegistryName(ItemConvertible item)
 	{

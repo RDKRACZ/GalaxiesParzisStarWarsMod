@@ -1,7 +1,6 @@
 package com.parzivail.pswg;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.parzivail.datagen.DataGenHelper;
 import com.parzivail.pswg.component.SwgEntityComponents;
 import com.parzivail.pswg.component.SwgPersistentComponents;
 import com.parzivail.pswg.container.*;
@@ -133,8 +132,5 @@ public class Galaxies implements ModInitializer
 		ServerPlayNetworking.registerGlobalReceiver(SwgPackets.C2S.PacketShipFire, ShipEntity::handleFirePacket);
 		ServerPlayNetworking.registerGlobalReceiver(SwgPackets.C2S.PacketShipRotation, ShipEntity::handleRotationPacket);
 		ServerPlayNetworking.registerGlobalReceiver(SwgPackets.C2S.PacketShipControls, ShipEntity::handleControlPacket);
-
-		if (FabricLoader.getInstance().isDevelopmentEnvironment())
-			DataGenHelper.run();
 	}
 }

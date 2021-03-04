@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"id": "pswg-datagen",
+	"version": "1.0",
+	"name": "Galaxies: Parzi's Star Wars Mod (T.A.R.K.I.N.)",
+	"description": "T.A.R.K.I.N. - Text Asset Record-Keeping, Integration, and Normalization",
+	"authors": [
+		"parzivail"
+	],
+	"contact": {
+		"homepage": "https://pswg.dev/",
+		"sources": "https://github.com/Parzivail-Modding-Team/GalaxiesParzisStarWarsMod"
+	},
+	"license": "",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.parzivail.datagen.tarkin.Tarkin"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.7.2",
+		"fabric": "*",
+		"minecraft": "1.16.x"
+	}
+}

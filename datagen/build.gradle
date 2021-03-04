@@ -1,0 +1,18 @@
+archivesBaseName = "${project.archives_base_name}-datagen"
+version = "1.0"
+group = project.maven_group as String
+
+java {
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this task, sources will not be generated.
+	withSourcesJar()
+}
+
+dependencies {
+	//to change the versions see the gradle.properties file
+	minecraft("com.mojang:minecraft:${project.minecraft_version}")
+	mappings("net.fabricmc:yarn:${project.yarn_mappings}:v2")
+
+	implementation(project(":mod"))
+}

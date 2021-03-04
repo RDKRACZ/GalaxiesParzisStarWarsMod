@@ -5,6 +5,7 @@ import com.parzivail.pswg.container.SwgBlocks;
 import com.parzivail.pswg.container.SwgItems;
 import com.parzivail.util.Lumberjack;
 import com.parzivail.util.block.InvertedLampBlock;
+import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.tag.ItemTags;
@@ -16,9 +17,21 @@ import java.util.List;
 /**
  * T.A.R.K.I.N. - Text Asset Record-Keeping, Integration, and Normalization
  */
-public class Tarkin
+public class Tarkin implements ClientModInitializer
 {
-	public static void main(String arg) throws Exception
+	@Override
+	public void onInitializeClient() {
+		try
+		{
+			Tarkin.main();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		System.exit(0);
+	}
+	public static void main() throws Exception
 	{
 		Lumberjack.setLogHeader("TARKIN");
 
