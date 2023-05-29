@@ -51,7 +51,7 @@ public class AstromechScreenHandler extends ScreenHandler
 	}
 
 	@Override
-	public ItemStack transferSlot(PlayerEntity player, int index)
+	public ItemStack quickMove(PlayerEntity player, int index)
 	{
 		var itemStack = ItemStack.EMPTY;
 		var slot = this.slots.get(index);
@@ -85,9 +85,9 @@ public class AstromechScreenHandler extends ScreenHandler
 	}
 
 	@Override
-	public void close(PlayerEntity player)
+	public void onClosed(PlayerEntity player)
 	{
-		super.close(player);
+		super.onClosed(player);
 		this.inventory.onClose(player);
 	}
 }

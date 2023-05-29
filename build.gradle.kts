@@ -1,7 +1,7 @@
 import java.io.ByteArrayOutputStream
 
 plugins {
-	id("pswg-submodule-dependencies")
+	id("com.parzivail.internal.pswg-submodule-dependencies")
 	id("fabric-loom")
 	id("io.github.juuxel.loom-quiltflower")
 	`maven-publish`
@@ -10,7 +10,7 @@ plugins {
 subprojects {
 	if (!file("project.gradle.kts").exists()) return@subprojects
 
-	apply(plugin = "pswg-submodule-dependencies")
+	apply(plugin = "com.parzivail.internal.pswg-submodule-dependencies")
 	apply(plugin = "fabric-loom")
 	apply(plugin = "io.github.juuxel.loom-quiltflower")
 	apply(plugin = "maven-publish")
@@ -73,6 +73,10 @@ allprojects {
 		maven(url = "https://api.modrinth.com/maven") {
 			name = "Modrinth"
 		}
+
+		maven(url = "https://www.jetbrains.com/intellij-repository/releases/") {
+			name = "JetBrains"
+		}
 	}
 
 	java {
@@ -86,7 +90,7 @@ allprojects {
 	}
 
 	quiltflower {
-		quiltflowerVersion.set("1.8.1")
+		quiltflowerVersion.set("1.9.0")
 	}
 
 	if (project.parent != null)
@@ -121,6 +125,7 @@ allprojects {
 	// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 	tasks.withType<JavaCompile> {
 		options.encoding = "UTF-8"
+		options.compilerArgs.addAll(arrayOf("-Xmaxerrs", "1000", "-Xdiags:verbose"))
 	}
 
 	tasks.jar {

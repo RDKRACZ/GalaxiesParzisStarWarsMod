@@ -5,12 +5,12 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.registry.Registries;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.registry.Registry;
+import org.joml.Matrix4f;
 
 import java.io.*;
-import java.nio.FloatBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 
@@ -79,7 +79,7 @@ public class DataReader
 		var name = readNullTerminatedString(stream);
 		var hasProperties = stream.readByte() == 1;
 
-		var blockRegistry = Registry.BLOCK;
+		var blockRegistry = Registries.BLOCK;
 		var block = blockRegistry.get(new Identifier(name));
 		var blockState = block.getDefaultState();
 
@@ -101,7 +101,7 @@ public class DataReader
 		return blockState;
 	}
 
-	private static <T extends Comparable<T>> BlockState withProperty(BlockState state, net.minecraft.state.property.Property<T> property, String key, NbtCompound propertiesTag, String context)
+	private static <T extends Comparable<T>> BlockState withProperty(BlockState state, Property<T> property, String key, NbtCompound propertiesTag, String context)
 	{
 		var optional = property.parse(propertiesTag.getString(key));
 		if (optional.isPresent())
@@ -115,15 +115,11 @@ public class DataReader
 
 	public static Matrix4f readMatrix4f(DataInput s) throws IOException
 	{
-		var mat = new Matrix4f();
 		var dat = new float[16];
 
 		for (int i = 0; i < 16; i++)
 			dat[i] = s.readFloat();
 
-		var buf = FloatBuffer.wrap(dat);
-		mat.readRowMajor(buf);
-
-		return mat;
+		return new Matrix4f().setTransposed(dat);
 	}
 }

@@ -33,6 +33,10 @@ public class Config implements ConfigData
 		@ConfigEntry.Gui.Tooltip
 		public boolean enableScreenShake = true;
 
+		@Comment("Force the perspective to first person when aiming down sights")
+		@ConfigEntry.Gui.Tooltip
+		public boolean forceFirstPersonAds = true;
+
 		@Comment("The ambient brightness of an ignited lightsaber when shaders are installed and active")
 		@ConfigEntry.BoundedDiscrete(min = 0, max = 15)
 		@ConfigEntry.Gui.Tooltip
@@ -80,6 +84,10 @@ public class Config implements ConfigData
 	@ConfigEntry.Gui.Excluded
 	@Comment("Disable update checker")
 	public boolean disableUpdateCheck = false;
+
+	@Comment("Ask to send PSWG crash reports to the developers")
+	@ConfigEntry.Gui.Tooltip
+	public boolean askToSendCrashReports = true;
 
 	public void reload()
 	{

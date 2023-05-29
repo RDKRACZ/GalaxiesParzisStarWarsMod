@@ -12,15 +12,15 @@ import com.parzivail.pswg.client.render.player.PlayerSpeciesModelRenderer;
 import com.parzivail.pswg.client.species.SwgSpeciesIcons;
 import com.parzivail.pswg.client.species.SwgSpeciesLore;
 import com.parzivail.pswg.client.species.SwgSpeciesRenderer;
-import com.parzivail.pswg.component.SwgEntityComponents;
+import com.parzivail.pswg.component.PlayerData;
 import com.parzivail.pswg.container.SwgPackets;
 import com.parzivail.pswg.container.SwgSpeciesRegistry;
 import com.parzivail.pswg.mixin.EntityRenderDispatcherAccessor;
+import com.parzivail.tarkin.api.TarkinLang;
 import com.parzivail.util.client.TextUtil;
 import com.parzivail.util.client.screen.blit.*;
 import com.parzivail.util.math.ColorUtil;
 import com.parzivail.util.math.MathUtil;
-import com.parzivail.util.math.MatrixStackUtil;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -33,8 +33,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.MathHelper;
+import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -68,11 +68,19 @@ public class CharacterScreen extends Screen
 		VARIABLES
 	}
 
+	@TarkinLang
 	public static final String I18N_TITLE = "screen.pswg.character";
+	@TarkinLang
 	public static final String I18N_CHOOSE_SPECIES = "screen.pswg.character.choose_species";
+	@TarkinLang
 	public static final String I18N_CHOOSE_OPTION = "screen.pswg.character.choose_option";
+	@TarkinLang
 	public static final String I18N_NEXT_PAGE = "screen.pswg.character.next_page";
+	@TarkinLang
 	public static final String I18N_PREVIOUS_PAGE = "screen.pswg.character.previous_page";
+	@TarkinLang
+	public static final String I18N_CLEAR_SPECIES = "screen.pswg.character.clear_species";
+
 	private static final Identifier OPTIONS_BACKGROUND = new Identifier("textures/gui/options_background.png");
 	private static final Identifier BACKGROUND = Resources.id("textures/gui/character/background.png");
 
@@ -161,7 +169,11 @@ public class CharacterScreen extends Screen
 	private final BlitRectangle<HoverableBlittableAsset> APPLY_BTN = new BlitRectangle<>(new HoverableBlittableAsset(
 			new BlittableAsset(0, 324, 42, 18, 512, 512),
 			new BlittableAsset(42, 324, 42, 18, 512, 512)
-	), 313, 210);
+	), 365, 210);
+	private final BlitRectangle<HoverableBlittableAsset> CLEAR_BTN = new BlitRectangle<>(new HoverableBlittableAsset(
+			new BlittableAsset(86, 324, 42, 18, 512, 512),
+			new BlittableAsset(128, 324, 42, 18, 512, 512)
+	), 365, 210);
 	private final BlitRectangle<HoverableBlittableAsset> RANDOM_BUTTON = new BlitRectangle<>(new HoverableBlittableAsset(
 			new BlittableAsset(0, 344, 20, 18, 512, 512),
 			new BlittableAsset(20, 344, 20, 18, 512, 512)
@@ -246,6 +258,8 @@ public class CharacterScreen extends Screen
 	private SpeciesGender previewSpeciesGender = SpeciesGender.MALE;
 	private PlayerSpeciesModelRenderer previousRenderer;
 	private Identifier previousTexture;
+	private boolean canDrag = false;
+	private float yaw = 0;
 
 	public CharacterScreen(Screen parent)
 	{
@@ -259,6 +273,7 @@ public class CharacterScreen extends Screen
 		blitRectangles.add(GENDER_TOGGLE);
 		blitRectangles.add(NEXT_PAGE_BTN);
 		blitRectangles.add(PREV_PAGE_BTN);
+		blitRectangles.add(CLEAR_BTN);
 		blitRectangles.add(SAVE_BUTTON);
 		blitRectangles.add(EXPORT_BUTTON);
 		blitRectangles.add(APPLY_BTN);
@@ -270,6 +285,7 @@ public class CharacterScreen extends Screen
 		hoverText.put(APPLY_BTN, () -> Text.translatable(Resources.I18N_SCREEN_APPLY));
 		hoverText.put(SAVE_BUTTON, () -> Text.translatable(Resources.I18N_SCREEN_SAVE_PRESET));
 		hoverText.put(EXPORT_BUTTON, () -> Text.translatable(Resources.I18N_SCREEN_EXPORT_PRESET));
+		hoverText.put(CLEAR_BTN, () -> Text.translatable(I18N_CLEAR_SPECIES));
 	}
 
 	private void updateAbility()
@@ -280,9 +296,9 @@ public class CharacterScreen extends Screen
 	protected void init()
 	{
 		var mc = MinecraftClient.getInstance();
-		var components = SwgEntityComponents.getPersistent(mc.player);
-		if (components.getSpecies() != null)
-			previewSpecies = SwgSpeciesRegistry.deserialize(components.getSpecies().serialize());
+		var components = PlayerData.getPersistentPublic(mc.player);
+		if (components.getCharacter() != null)
+			previewSpecies = SwgSpeciesRegistry.deserialize(components.getCharacter().serialize());
 	}
 
 	@Override
@@ -309,7 +325,14 @@ public class CharacterScreen extends Screen
 			return true;
 		}
 
-		var allSpecies = SwgSpeciesRegistry.ALL_SPECIES.get();
+		if (CLEAR_BTN.contains((int)mouseX, (int)mouseY) && isPlayerSpecies())
+		{
+			previewSpecies = null;
+			applySpecies();
+			close();
+		}
+
+		var allSpecies = SwgSpeciesRegistry.getAllSlugs().stream().sorted().toList();
 
 		var listOverflowSize = Math.max(0, LIST_ROW_HEIGHT * allSpecies.size() - LEFT_LIST_CUTOUT.height);
 		var scrollOffset = -(int)(listOverflowSize * LEFT_SCROLL_THUMB.getScroll());
@@ -323,7 +346,7 @@ public class CharacterScreen extends Screen
 
 			previewVariable = null;
 			previewVariableValue = null;
-			previewSpecies = SwgSpeciesRegistry.create(allSpecies.get(i).getSlug(), previewSpeciesGender);
+			previewSpecies = SwgSpeciesRegistry.create(allSpecies.get(i), previewSpeciesGender);
 			RIGHT_SCROLL_THUMB.setScroll(0);
 			return true;
 		}
@@ -426,6 +449,17 @@ public class CharacterScreen extends Screen
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
+	@Override
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY)
+	{
+		if (!canDrag)
+			return false;
+
+		yaw -= deltaX;
+
+		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+	}
+
 	private void setSliderColor(int color)
 	{
 		WHITE_SCROLL_THUMB.setScroll(((color >> 24) & 0xFF) / 255f);
@@ -505,11 +539,15 @@ public class CharacterScreen extends Screen
 			}
 		}
 
-		return switch (page)
-				{
-					case SPECIES -> mouseClickedPageSpecies(mouseX, mouseY, button);
-					case VARIABLES -> mouseClickedPageVariables(mouseX, mouseY, button);
-				};
+		if (switch (page)
+		{
+			case SPECIES -> mouseClickedPageSpecies(mouseX, mouseY, button);
+			case VARIABLES -> mouseClickedPageVariables(mouseX, mouseY, button);
+		})
+			return true;
+
+		canDrag = true;
+		return false;
 	}
 
 	private boolean mouseReleasedPageSpecies(double mouseX, double mouseY, int button)
@@ -543,11 +581,13 @@ public class CharacterScreen extends Screen
 		LEFT_SCROLL_THUMB.setScrolling(false);
 		RIGHT_SCROLL_THUMB.setScrolling(false);
 
+		canDrag = false;
+
 		return switch (page)
-				{
-					case SPECIES -> mouseReleasedPageSpecies(mouseX, mouseY, button);
-					case VARIABLES -> mouseReleasedPageVariables(mouseX, mouseY, button);
-				};
+		{
+			case SPECIES -> mouseReleasedPageSpecies(mouseX, mouseY, button);
+			case VARIABLES -> mouseReleasedPageVariables(mouseX, mouseY, button);
+		};
 	}
 
 	@Override
@@ -594,7 +634,7 @@ public class CharacterScreen extends Screen
 
 		var x = width / 2 - HALF_WIDTH;
 		var y = height / 2 - HALF_HEIGHT;
-		var selectedSpeciesSlug = previewSpecies == null ? SwgSpeciesRegistry.SPECIES_NONE : previewSpecies.getSlug();
+		var selectedSpeciesSlug = previewSpecies == null ? SwgSpeciesRegistry.METASPECIES_NONE : previewSpecies.getSlug();
 		var isSpeciesPage = page == Page.SPECIES;
 
 		LEFT_LIST_CUTOUT.setOrigin(x, y);
@@ -608,7 +648,7 @@ public class CharacterScreen extends Screen
 		TRANSPARENT_VIEWPORT_BACKGROUND.setOrigin(x, y);
 		blitRectangles.forEach(blitRectangle -> blitRectangle.setOrigin(x, y));
 
-		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+		RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
 		RenderSystem.setShaderTexture(0, BACKGROUND);
 
 		LEFT_LIST_CUTOUT.blit(matrices);
@@ -629,9 +669,9 @@ public class CharacterScreen extends Screen
 		SAVE_BUTTON.visible = !isSpeciesPage;
 		EXPORT_BUTTON.visible = !isSpeciesPage;
 		NEXT_PAGE_BTN.visible = isSpeciesPage;
+		CLEAR_BTN.visible = isSpeciesPage && isPlayerSpecies();
 		PREV_PAGE_BTN.visible = !isSpeciesPage;
 		APPLY_BTN.visible = !isSpeciesPage;
-		APPLY_BTN.x = 313 + 42 + 10;
 
 		LEFT_ARROW.visible = false;
 		RIGHT_ARROW.visible = false;
@@ -676,15 +716,15 @@ public class CharacterScreen extends Screen
 		var rsm = RenderSystem.getModelViewStack();
 		rsm.push();
 		rsm.translate(x + 182, y + 190, 50);
-		rsm.multiply(new Quaternion(-22, 0, 0, true));
-		rsm.multiply(new Quaternion(0, -45, 0, true));
-		drawEntity(rsm, previewSpecies, 0, 0, 80, 0, 0);
+		rsm.multiply(new Quaternionf().rotationX(MathUtil.toRadians(-22)));
+		rsm.multiply(new Quaternionf().rotationY(MathUtil.toRadians(-45)));
+		drawEntity(rsm, previewSpecies, 0, 0, 80);
 		rsm.pop();
 		RenderSystem.applyModelViewMatrix();
 
 		this.textRenderer.draw(matrices, this.title, x + 9, y + 9, 0x404040);
 
-		if (!selectedSpeciesSlug.equals(SwgSpeciesRegistry.SPECIES_NONE))
+		if (!selectedSpeciesSlug.equals(SwgSpeciesRegistry.METASPECIES_NONE))
 		{
 			var speciesHeaderText = Text.translatable(SwgSpeciesRegistry.getTranslationKey(selectedSpeciesSlug));
 			var speciesHeaderOffset = -textRenderer.getWidth(speciesHeaderText) / 2f;
@@ -743,6 +783,13 @@ public class CharacterScreen extends Screen
 		super.render(matrices, mouseX, mouseY, delta);
 	}
 
+	private boolean isPlayerSpecies()
+	{
+		var mc = MinecraftClient.getInstance();
+		var components = PlayerData.getPersistentPublic(mc.player);
+		return components.getCharacter() != null;
+	}
+
 	private static void renderColorPreview(int x, int y, int size, float r, float g, float b, float a)
 	{
 		var bufferBuilder = Tessellator.getInstance().getBuffer();
@@ -752,9 +799,9 @@ public class CharacterScreen extends Screen
 		bufferBuilder.vertex(x + size, y, 0).color(r, g, b, a).texture(1, 0).next();
 		bufferBuilder.vertex(x, y, 0).color(r, g, b, a).texture(0, 0).next();
 
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		RenderSystem.enableBlend();
-		BufferRenderer.drawWithShader(bufferBuilder.end());
+		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 		RenderSystem.disableBlend();
 	}
 
@@ -820,7 +867,7 @@ public class CharacterScreen extends Screen
 
 	private void renderLeftScrollPanelPageSpecies(MatrixStack matrices, int mouseX, int mouseY, int x, int y, Identifier selectedSpeciesSlug)
 	{
-		var allSpecies = SwgSpeciesRegistry.ALL_SPECIES.get();
+		var allSpecies = SwgSpeciesRegistry.getAllSlugs().stream().sorted().toList();
 		LEFT_SCROLL_THUMB.setScrollInputFactor(allSpecies.size());
 
 		var listOverflowSize = Math.max(0, LIST_ROW_HEIGHT * allSpecies.size() - LEFT_LIST_CUTOUT.height);
@@ -834,8 +881,8 @@ public class CharacterScreen extends Screen
 				continue;
 
 			var entry = allSpecies.get(i);
-			var hovering = entry.getSlug().equals(selectedSpeciesSlug) || (!LEFT_SCROLL_THUMB.isScrolling() && listItemContains(SPECIES_LIST_PANEL_X, SPECIES_LIST_PANEL_Y, mouseX, mouseY, scrollOffset + LIST_ROW_HEIGHT * i, LEFT_LIST_CUTOUT.width));
-			SwgSpeciesIcons.renderLargeCircle(matrices, x + SPECIES_LIST_PANEL_X, y + SPECIES_LIST_PANEL_Y + scrollOffset + LIST_ROW_CONTENT_CENTERING_OFFSET + LIST_ROW_HEIGHT * i, entry.getSlug(), hovering);
+			var hovering = entry.equals(selectedSpeciesSlug) || (!LEFT_SCROLL_THUMB.isScrolling() && listItemContains(SPECIES_LIST_PANEL_X, SPECIES_LIST_PANEL_Y, mouseX, mouseY, scrollOffset + LIST_ROW_HEIGHT * i, LEFT_LIST_CUTOUT.width));
+			SwgSpeciesIcons.renderLargeCircle(matrices, x + SPECIES_LIST_PANEL_X, y + SPECIES_LIST_PANEL_Y + scrollOffset + LIST_ROW_CONTENT_CENTERING_OFFSET + LIST_ROW_HEIGHT * i, entry, hovering);
 		}
 
 		for (var i = 0; i < allSpecies.size(); i++)
@@ -844,9 +891,9 @@ public class CharacterScreen extends Screen
 				continue;
 
 			var entry = allSpecies.get(i);
-			var hovering = entry.getSlug().equals(selectedSpeciesSlug) || (!LEFT_SCROLL_THUMB.isScrolling() && listItemContains(SPECIES_LIST_PANEL_X, SPECIES_LIST_PANEL_Y, mouseX, mouseY, scrollOffset + LIST_ROW_HEIGHT * i, LEFT_LIST_CUTOUT.width));
+			var hovering = entry.equals(selectedSpeciesSlug) || (!LEFT_SCROLL_THUMB.isScrolling() && listItemContains(SPECIES_LIST_PANEL_X, SPECIES_LIST_PANEL_Y, mouseX, mouseY, scrollOffset + LIST_ROW_HEIGHT * i, LEFT_LIST_CUTOUT.width));
 
-			var translatedText = Text.translatable(SwgSpeciesRegistry.getTranslationKey(entry.getSlug()));
+			var translatedText = Text.translatable(SwgSpeciesRegistry.getTranslationKey(entry));
 			var wrapped = this.textRenderer.wrapLines(translatedText, 60);
 			this.textRenderer.draw(matrices, wrapped.get(0), x + SPECIES_LIST_PANEL_X + 27, y + SPECIES_LIST_PANEL_Y + 6 + scrollOffset + LIST_ROW_CONTENT_CENTERING_OFFSET + LIST_ROW_HEIGHT * i, hovering ? 0xFFFFFF : 0x000000);
 		}
@@ -866,33 +913,29 @@ public class CharacterScreen extends Screen
 		);
 	}
 
-	public void drawEntity(MatrixStack matrixStack, SwgSpecies species, int x, int y, int size, float mouseX, float mouseY)
+	public void drawEntity(MatrixStack matrixStack, SwgSpecies species, int x, int y, int size)
 	{
 		matrixStack.push();
 
 		AbstractClientPlayerEntity entity = client.player;
-		var mouseYaw = (float)Math.atan(mouseX / 40.0F);
-		var mousePitch = (float)Math.atan(mouseY / 40.0F);
-		MatrixStackUtil.scalePos(matrixStack, size, size, -size);
+		MathUtil.scalePos(matrixStack, size, size, -size);
 		RenderSystem.applyModelViewMatrix();
 
 		var matrixStack2 = new MatrixStack();
-		var quaternion = Vec3f.POSITIVE_Z.getDegreesQuaternion(180.0F);
-		var quaternion2 = Vec3f.POSITIVE_X.getDegreesQuaternion(mousePitch * 20.0F);
-		quaternion.hamiltonProduct(quaternion2);
+		Quaternionf quaternion = new Quaternionf().rotationZ(MathHelper.PI);
 		matrixStack2.multiply(quaternion);
 		var h = entity.bodyYaw;
 		var i = entity.getYaw();
 		var j = entity.getPitch();
 		var k = entity.prevHeadYaw;
 		var l = entity.headYaw;
-		entity.bodyYaw = 180 + mouseYaw * 20.0F;
-		entity.setYaw(180 + mouseYaw * 40.0F);
-		entity.setPitch(-mousePitch * 20.0F);
+		entity.bodyYaw = 180 + yaw;
+		entity.setYaw(180 + yaw);
+		entity.setPitch(0);
 		entity.headYaw = entity.getYaw();
 		entity.prevHeadYaw = entity.getYaw();
 
-		entity.limbDistance = 0;
+		entity.limbAnimator.setSpeed(0);
 
 		var immediate = client.getBufferBuilders().getEntityVertexConsumers();
 
@@ -901,13 +944,11 @@ public class CharacterScreen extends Screen
 
 		DiffuseLighting.method_34742();
 		var entityRenderDispatcher = client.getEntityRenderDispatcher();
-		quaternion2.conjugate();
-		entityRenderDispatcher.setRotation(quaternion2);
 		entityRenderDispatcher.setRenderShadows(false);
 		RenderSystem.runAsFancy(() -> {
 			if (species == null)
 			{
-				entityRenderDispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0, 1, matrixStack2, immediate, 0xf000f0);
+				entityRenderDispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0, 1, matrixStack2, immediate, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 			}
 			else
 			{
@@ -922,18 +963,18 @@ public class CharacterScreen extends Screen
 					{
 						// Continue rendering previous model while current texture is loading
 						if (previousRenderer != null && previousTexture != null)
-							previousRenderer.renderWithOverrides(species, previousTexture, entity, 0, 1, matrixStack2, immediate, 0xf000f0);
+							previousRenderer.renderWithOverrides(species, previousTexture, entity, 0, 1, matrixStack2, immediate, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 					}
 					else
 					{
-						perwm.renderWithOverrides(species, texture, entity, 0, 1, matrixStack2, immediate, 0xf000f0);
+						perwm.renderWithOverrides(species, texture, entity, 0, 1, matrixStack2, immediate, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 						previousTexture = texture;
 					}
 
 					previousRenderer = perwm;
 				}
 				else if (renderer != null)
-					renderer.render(entity, 1, 1, matrixStack2, immediate, 0xf000f0);
+					renderer.render(entity, 1, 1, matrixStack2, immediate, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 
 				CameraHelper.forcePlayerRender = false;
 			}
@@ -952,22 +993,5 @@ public class CharacterScreen extends Screen
 
 		RenderSystem.applyModelViewMatrix();
 		DiffuseLighting.enableGuiDepthLighting();
-	}
-
-	@Override
-	public void renderBackgroundTexture(int vOffset)
-	{
-		var tessellator = Tessellator.getInstance();
-		var bufferBuilder = tessellator.getBuffer();
-		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-		RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		var f = 32.0F;
-		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-		bufferBuilder.vertex(0.0D, this.height, 0.0D).texture(0.0F, (float)this.height / 32.0F + (float)vOffset).color(64, 64, 64, 255).next();
-		bufferBuilder.vertex(this.width, this.height, 0.0D).texture((float)this.width / 32.0F, (float)this.height / 32.0F + (float)vOffset).color(64, 64, 64, 255).next();
-		bufferBuilder.vertex(this.width, 0.0D, 0.0D).texture((float)this.width / 32.0F, (float)vOffset).color(64, 64, 64, 255).next();
-		bufferBuilder.vertex(0.0D, 0.0D, 0.0D).texture(0.0F, (float)vOffset).color(64, 64, 64, 255).next();
-		tessellator.draw();
 	}
 }

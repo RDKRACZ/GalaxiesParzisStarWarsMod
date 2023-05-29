@@ -14,7 +14,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.resource.ReloadableResourceManagerImpl;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,15 +32,14 @@ public abstract class MinecraftClientMixin
 	private TextureManager textureManager;
 
 	@Shadow
-	@Final
-	private ReloadableResourceManagerImpl resourceManager;
-
-	@Shadow
 	@Nullable
 	public ClientPlayerInteractionManager interactionManager;
 
 	@Shadow
 	protected abstract boolean doAttack();
+
+	@Shadow
+	private int itemUseCooldown;
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void initTail(RunArgs args, CallbackInfo ci)

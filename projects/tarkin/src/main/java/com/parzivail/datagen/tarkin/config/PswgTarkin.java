@@ -5,26 +5,28 @@ import com.parzivail.pswg.Client;
 import com.parzivail.pswg.Config;
 import com.parzivail.pswg.Galaxies;
 import com.parzivail.pswg.Resources;
+import com.parzivail.pswg.api.PswgContent;
 import com.parzivail.pswg.block.crop.HkakBushBlock;
 import com.parzivail.pswg.block.crop.MoloShrubBlock;
-import com.parzivail.pswg.client.screen.BlasterWorkbenchScreen;
+import com.parzivail.pswg.character.SpeciesVariable;
 import com.parzivail.pswg.client.screen.CharacterScreen;
-import com.parzivail.pswg.client.screen.SpeciesSelectScreen;
-import com.parzivail.pswg.container.SwgBlocks;
-import com.parzivail.pswg.container.SwgEntities;
-import com.parzivail.pswg.container.SwgItems;
-import com.parzivail.pswg.container.SwgTags;
-import com.parzivail.pswg.item.blaster.data.BlasterFiringMode;
+import com.parzivail.pswg.client.species.SwgSpeciesLore;
+import com.parzivail.pswg.container.*;
+import com.parzivail.pswg.features.blasters.BlasterItem;
+import com.parzivail.pswg.features.blasters.client.workbench.BlasterWorkbenchScreen;
+import com.parzivail.pswg.features.blasters.data.BlasterArchetype;
+import com.parzivail.pswg.features.blasters.data.BlasterFiringMode;
+import com.parzivail.pswg.features.lightsabers.LightsaberItem;
+import com.parzivail.pswg.features.lightsabers.data.LightsaberBladeType;
 import com.parzivail.util.block.InvertedLampBlock;
-import net.fabricmc.fabric.api.mininglevel.v1.FabricMineableTags;
+import net.minecraft.block.Blocks;
 import net.minecraft.data.client.BlockStateModelGenerator;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.tag.BlockTags;
-import net.minecraft.tag.ItemTags;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import java.util.List;
 
@@ -51,7 +53,6 @@ public class PswgTarkin
 
 		// Containers
 		lang.container("blaster_workbench").build(assets);
-		lang.cloneWithRoot(BlasterWorkbenchScreen.I18N_INCOMPAT_ATTACHMENT).build(assets);
 
 		lang.container("corrugated_crate").build(assets);
 		lang.container("kyber_crate").build(assets);
@@ -66,46 +67,37 @@ public class PswgTarkin
 
 		// Entities
 		lang.entity(SwgEntities.Misc.BlasterBolt).build(assets);
+		lang.entity(SwgEntities.Misc.BlasterIonBolt).build(assets);
+		lang.entity(SwgEntities.Misc.BlasterStunBolt).build(assets);
 		lang.entity(SwgEntities.Misc.ThrownLightsaber).build(assets);
+		lang.entity(SwgEntities.Misc.Mannequin).build(assets);
 		lang.entity(SwgEntities.Ship.T65bXwing).build(assets);
 		lang.entity(SwgEntities.Speeder.X34).build(assets);
+		lang.entity(SwgEntities.Speeder.ZephyrJ).build(assets);
 		lang.entity(SwgEntities.Fish.Faa).build(assets);
 		lang.entity(SwgEntities.Fish.Laa).build(assets);
 		lang.entity(SwgEntities.Amphibian.Worrt).build(assets);
 		lang.entity(SwgEntities.Mammal.Bantha).build(assets);
-		lang.entity(SwgEntities.Droid.AstroR2).build(assets);
-		lang.entity(SwgEntities.Droid.AstroR2Imperial).build(assets);
+		lang.entity(SwgEntities.Rodent.SandSkitter).build(assets);
+		lang.entity(SwgEntities.Droid.AstroR2D2).build(assets);
+		lang.entity(SwgEntities.Droid.AstroR2Q5).build(assets);
+		lang.entity(SwgEntities.Droid.AstroR2KP).build(assets);
+		lang.entity(SwgEntities.Droid.AstroR2R7).build(assets);
+		lang.entity(SwgEntities.Droid.AstroR2Y10).build(assets);
+		lang.entity(SwgEntities.Droid.AstroQTKT).build(assets);
 
-		// Screen
-		lang.cloneWithRoot(Resources.I18N_SCREEN_APPLY).build(assets);
-		lang.cloneWithRoot(Resources.I18N_SCREEN_RANDOM).build(assets);
-		lang.cloneWithRoot(Resources.I18N_SCREEN_GENDER_MALE).build(assets);
-		lang.cloneWithRoot(Resources.I18N_SCREEN_GENDER_FEMALE).build(assets);
-		lang.cloneWithRoot(Resources.I18N_SCREEN_SAVE_PRESET).build(assets);
-		lang.cloneWithRoot(Resources.I18N_SCREEN_EXPORT_PRESET).build(assets);
+		Tarkin.registerLangFields(Resources.class, lang, assets);
+		Tarkin.registerLangFields(CharacterScreen.class, lang, assets);
+		Tarkin.registerLangFields(BlasterItem.class, lang, assets);
+		Tarkin.registerLangFields(LightsaberItem.class, lang, assets);
+		Tarkin.registerLangFields(BlasterWorkbenchScreen.class, lang, assets);
 
-		lang.cloneWithRoot(CharacterScreen.I18N_TITLE).build(assets);
-		lang.cloneWithRoot(CharacterScreen.I18N_CHOOSE_SPECIES).build(assets);
-		lang.cloneWithRoot(CharacterScreen.I18N_CHOOSE_OPTION).build(assets);
-		lang.cloneWithRoot(CharacterScreen.I18N_NEXT_PAGE).build(assets);
-		lang.cloneWithRoot(CharacterScreen.I18N_PREVIOUS_PAGE).build(assets);
+		// Item
+		lang.item("lightsaber").build(assets);
+		lang.item("lightsaber").dot("darksaber").build(assets);
 
-		lang.screen("species_select").build(assets);
-		lang.cloneWithRoot(SpeciesSelectScreen.I18N_USE_FEMALE_MODEL).build(assets);
-
-		// Item tooltips
-		lang.tooltip("blaster").dot("info").build(assets);
-		lang.tooltip("blaster").dot("controls").build(assets);
-		var blasterStats = lang.tooltip("blaster").dot("stats");
-		blasterStats.dot("unknown").build(assets);
-		blasterStats.dot("heat").build(assets);
-		blasterStats.dot("recoil").build(assets);
-		blasterStats.dot("spread").build(assets);
-		blasterStats.dot("damage").build(assets);
-		blasterStats.dot("range").build(assets);
-
-		lang.tooltip("lightsaber").dot("info").build(assets);
-		lang.tooltip("lightsaber").dot("controls").build(assets);
+		for (var entry : LightsaberBladeType.values())
+			lang.entry(entry.getLangKey()).build(assets);
 
 		// Lore
 		lang.lore(SwgItems.Food.Kreetlejuice).build(assets);
@@ -124,6 +116,7 @@ public class PswgTarkin
 		lang.key(Client.KEY_PRIMARY_ITEM_ACTION).build(assets);
 		lang.key(Client.KEY_SECONDARY_ITEM_ACTION).build(assets);
 		lang.key(Client.KEY_SHIP_INPUT_MODE_OVERRIDE).build(assets);
+		lang.key(Client.KEY_PATROL_POSTURE).build(assets);
 		lang.key(Client.KEY_SPECIES_SELECT).build(assets);
 
 		// Messages
@@ -131,40 +124,81 @@ public class PswgTarkin
 
 		lang.message("tip").dot("customize_character").build(assets);
 
-		lang.message("blaster_mode_changed").build(assets);
-		lang.cloneWithRoot(BlasterFiringMode.SEMI_AUTOMATIC.getTranslation()).build(assets);
-		lang.cloneWithRoot(BlasterFiringMode.BURST.getTranslation()).build(assets);
-		lang.cloneWithRoot(BlasterFiringMode.AUTOMATIC.getTranslation()).build(assets);
-		lang.cloneWithRoot(BlasterFiringMode.STUN.getTranslation()).build(assets);
-		lang.cloneWithRoot(BlasterFiringMode.SLUGTHROWER.getTranslation()).build(assets);
-		lang.cloneWithRoot(BlasterFiringMode.ION.getTranslation()).build(assets);
+		for (var value : BlasterFiringMode.values())
+			lang.entry(value.getTranslation()).build(assets);
 
 		// Species
-		Tarkin.generateSpeciesLang(assets, lang, Resources.MODID);
+		generateSpeciesLang(assets, lang, Resources.MODID);
 
 		// Blaster attachments
-		Tarkin.generateBlasterLang(assets, lang, Resources.MODID);
+		generateBlasterLang(assets, lang, Resources.MODID);
 
 		// Autoconfig
-		Tarkin.generateConfigLang(assets, lang, Config.class);
+		generateConfigLang(assets, lang, Config.class);
 	}
 
 	public static void generateTags(List<BuiltAsset> assets)
 	{
-		TagGenerator.forBlockTag(BlockTags.LOGS_THAT_BURN, SwgTags.Block.SEQUOIA_LOG).build(assets);
-		TagGenerator.forItemTag(ItemTags.LOGS_THAT_BURN, SwgTags.Block.SEQUOIA_LOG).build(assets);
+		TagGenerator.forBlock(BlockTags.LOGS_THAT_BURN, SwgTags.Blocks.SEQUOIA_LOG).build(assets);
+		TagGenerator.forItemTag(ItemTags.LOGS_THAT_BURN, SwgTags.Blocks.SEQUOIA_LOG).build(assets);
 
-		TagGenerator.forBlockTag(BlockTags.LOGS_THAT_BURN, SwgTags.Block.JAPOR_LOG).build(assets);
-		TagGenerator.forItemTag(ItemTags.LOGS_THAT_BURN, SwgTags.Block.JAPOR_LOG).build(assets);
+		TagGenerator.forBlock(BlockTags.LOGS_THAT_BURN, SwgTags.Blocks.JAPOR_LOG).build(assets);
+		TagGenerator.forItemTag(ItemTags.LOGS_THAT_BURN, SwgTags.Blocks.JAPOR_LOG).build(assets);
 
-		TagGenerator.forBlockTag(BlockTags.LOGS_THAT_BURN, SwgTags.Block.TATOOINE_LOG).build(assets);
-		TagGenerator.forItemTag(ItemTags.LOGS_THAT_BURN, SwgTags.Block.TATOOINE_LOG).build(assets);
+		TagGenerator.forBlock(BlockTags.LOGS_THAT_BURN, SwgTags.Blocks.TATOOINE_LOG).build(assets);
+		TagGenerator.forItemTag(ItemTags.LOGS_THAT_BURN, SwgTags.Blocks.TATOOINE_LOG).build(assets);
 
-		TagGenerator.forBlockTag(BlockTags.SAND, SwgTags.Block.DESERT_SAND).build(assets);
-		TagGenerator.forBlockTag(BlockTags.SHOVEL_MINEABLE, SwgTags.Block.DESERT_SAND).build(assets);
-		TagGenerator.forItemTag(ItemTags.SAND, SwgTags.Block.DESERT_SAND).build(assets);
+		TagGenerator.forBlock(BlockTags.SAND, SwgTags.Blocks.DESERT_SAND).build(assets);
+		TagGenerator.forBlock(BlockTags.SHOVEL_MINEABLE, SwgTags.Blocks.DESERT_SAND).build(assets);
+		TagGenerator.forItemTag(ItemTags.SAND, SwgTags.Blocks.DESERT_SAND).build(assets);
 
-		TagGenerator.forBlockTag(BlockTags.WALLS, SwgTags.Block.TATOOINE_DOORS).build(assets);
+		TagGenerator.forBlock(BlockTags.WALLS, SwgTags.Blocks.SLIDING_DOORS).build(assets);
+
+		// Why is there no block tag for glass?
+		TagGenerator.addBlocksToTag(
+				SwgTags.Blocks.BLASTER_DESTROY,
+				assets,
+				Blocks.GLASS,
+				Blocks.WHITE_STAINED_GLASS,
+				Blocks.ORANGE_STAINED_GLASS,
+				Blocks.MAGENTA_STAINED_GLASS,
+				Blocks.LIGHT_BLUE_STAINED_GLASS,
+				Blocks.YELLOW_STAINED_GLASS,
+				Blocks.LIME_STAINED_GLASS,
+				Blocks.PINK_STAINED_GLASS,
+				Blocks.GRAY_STAINED_GLASS,
+				Blocks.LIGHT_GRAY_STAINED_GLASS,
+				Blocks.CYAN_STAINED_GLASS,
+				Blocks.PURPLE_STAINED_GLASS,
+				Blocks.BLUE_STAINED_GLASS,
+				Blocks.BROWN_STAINED_GLASS,
+				Blocks.GREEN_STAINED_GLASS,
+				Blocks.RED_STAINED_GLASS,
+				Blocks.BLACK_STAINED_GLASS,
+				Blocks.GLASS_PANE,
+				Blocks.WHITE_STAINED_GLASS_PANE,
+				Blocks.ORANGE_STAINED_GLASS_PANE,
+				Blocks.MAGENTA_STAINED_GLASS_PANE,
+				Blocks.LIGHT_BLUE_STAINED_GLASS_PANE,
+				Blocks.YELLOW_STAINED_GLASS_PANE,
+				Blocks.LIME_STAINED_GLASS_PANE,
+				Blocks.PINK_STAINED_GLASS_PANE,
+				Blocks.GRAY_STAINED_GLASS_PANE,
+				Blocks.LIGHT_GRAY_STAINED_GLASS_PANE,
+				Blocks.CYAN_STAINED_GLASS_PANE,
+				Blocks.PURPLE_STAINED_GLASS_PANE,
+				Blocks.BLUE_STAINED_GLASS_PANE,
+				Blocks.BROWN_STAINED_GLASS_PANE,
+				Blocks.GREEN_STAINED_GLASS_PANE,
+				Blocks.RED_STAINED_GLASS_PANE,
+				Blocks.BLACK_STAINED_GLASS_PANE,
+				Blocks.TINTED_GLASS
+		);
+		TagGenerator.addBlocksToTag(
+				SwgTags.Blocks.BLASTER_EXPLODE,
+				assets,
+				Blocks.TNT
+		);
 	}
 
 	public static void generateRecipes(List<BuiltAsset> assets)
@@ -280,47 +314,47 @@ public class PswgTarkin
 		RecipeGenerator.buildFood(assets, SwgItems.Food.QrikkiBread, SwgItems.Food.QrikkiWaffle);
 
 		//Plasteel alternative recipes
-		RecipeGenerator.Shaped.of(new ItemStack(Items.ANVIL))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.ANVIL))
 		                      .grid3x3("plasteel",
 		                               SwgBlocks.Composite.PlasteelBlock, SwgBlocks.Composite.PlasteelBlock, SwgBlocks.Composite.PlasteelBlock,
 		                               null, SwgItems.Material.PlasteelIngot, null,
 		                               SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.BLAST_FURNACE))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.BLAST_FURNACE))
 		                      .grid3x3("plasteel",
 		                               SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot,
-		                               SwgItems.Material.PlasteelIngot, Items.FURNACE, SwgItems.Material.PlasteelIngot,
-		                               Items.SMOOTH_STONE, Items.SMOOTH_STONE, Items.SMOOTH_STONE)
+		                               SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.FURNACE, SwgItems.Material.PlasteelIngot,
+		                               net.minecraft.item.Items.SMOOTH_STONE, net.minecraft.item.Items.SMOOTH_STONE, net.minecraft.item.Items.SMOOTH_STONE)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.BUCKET))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.BUCKET))
 		                      .grid3x2("plasteel",
 		                               SwgItems.Material.PlasteelIngot, null, SwgItems.Material.PlasteelIngot,
 		                               null, SwgItems.Material.PlasteelIngot, null)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.CAULDRON))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.CAULDRON))
 		                      .grid3x3("plasteel",
 		                               SwgItems.Material.PlasteelIngot, null, SwgItems.Material.PlasteelIngot,
 		                               SwgItems.Material.PlasteelIngot, null, SwgItems.Material.PlasteelIngot,
 		                               SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.CHAIN))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.CHAIN))
 		                      .grid1x3("plasteel",
 		                               SwgItems.Material.PlasteelNugget,
 		                               SwgItems.Material.PlasteelIngot,
 		                               SwgItems.Material.PlasteelNugget)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.COMPASS))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.COMPASS))
 		                      .grid3x3("plasteel",
 		                               null, SwgItems.Material.PlasteelIngot, null,
-		                               SwgItems.Material.PlasteelIngot, Items.REDSTONE, SwgItems.Material.PlasteelIngot,
+		                               SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.REDSTONE, SwgItems.Material.PlasteelIngot,
 		                               null, SwgItems.Material.PlasteelIngot, null)
 		                      .build(assets);
-		RecipeGenerator.Shaped.of(new ItemStack(Items.SHEARS))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.SHEARS))
 		                      .grid2x2("plasteel_left",
 		                               SwgItems.Material.PlasteelIngot, null,
 		                               null, SwgItems.Material.PlasteelIngot)
@@ -328,96 +362,96 @@ public class PswgTarkin
 		                               null, SwgItems.Material.PlasteelIngot,
 		                               SwgItems.Material.PlasteelIngot, null)
 		                      .build(assets);
-		RecipeGenerator.Shapeless.of(new ItemStack(Items.FLINT_AND_STEEL), "plasteel")
+		RecipeGenerator.Shapeless.of(new ItemStack(net.minecraft.item.Items.FLINT_AND_STEEL), "plasteel")
 		                         .ingredient(SwgItems.Material.PlasteelIngot)
-		                         .ingredient(Items.FLINT)
+		                         .ingredient(net.minecraft.item.Items.FLINT)
 		                         .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.CROSSBOW))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.CROSSBOW))
 		                      .grid3x3("plasteel",
-		                               Items.STICK, SwgItems.Material.PlasteelIngot, Items.STICK,
-		                               Items.STRING, Items.TRIPWIRE_HOOK, Items.STRING,
-		                               null, Items.STICK, null)
+		                               net.minecraft.item.Items.STICK, SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.STICK,
+		                               net.minecraft.item.Items.STRING, net.minecraft.item.Items.TRIPWIRE_HOOK, net.minecraft.item.Items.STRING,
+		                               null, net.minecraft.item.Items.STICK, null)
 		                      .build(assets);
-		RecipeGenerator.Shaped.of(new ItemStack(Items.SHIELD))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.SHIELD))
 		                      .grid3x3("plasteel",
 		                               ItemTags.PLANKS, SwgItems.Material.PlasteelIngot, ItemTags.PLANKS,
 		                               ItemTags.PLANKS, ItemTags.PLANKS, ItemTags.PLANKS,
 		                               null, ItemTags.PLANKS, null)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.HEAVY_WEIGHTED_PRESSURE_PLATE))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.HEAVY_WEIGHTED_PRESSURE_PLATE))
 		                      .grid2x1("plasteel", SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.HOPPER))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.HOPPER))
 		                      .grid3x3("plasteel",
 		                               SwgItems.Material.PlasteelIngot, null, SwgItems.Material.PlasteelIngot,
-		                               SwgItems.Material.PlasteelIngot, Items.CHEST, SwgItems.Material.PlasteelIngot,
+		                               SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.CHEST, SwgItems.Material.PlasteelIngot,
 		                               null, SwgItems.Material.PlasteelIngot, null)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.MINECART))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.MINECART))
 		                      .grid3x2("plasteel",
 		                               SwgItems.Material.PlasteelIngot, null, SwgItems.Material.PlasteelIngot,
 		                               SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot)
 		                      .build(assets);
-		RecipeGenerator.Shaped.of(new ItemStack(Items.RAIL, 16))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.RAIL, 16))
 		                      .grid3x3("plasteel",
 		                               SwgItems.Material.PlasteelIngot, null, SwgItems.Material.PlasteelIngot,
-		                               SwgItems.Material.PlasteelIngot, Items.STICK, SwgItems.Material.PlasteelIngot,
+		                               SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.STICK, SwgItems.Material.PlasteelIngot,
 		                               SwgItems.Material.PlasteelIngot, null, SwgItems.Material.PlasteelIngot)
 		                      .build(assets);
-		RecipeGenerator.Shaped.of(new ItemStack(Items.ACTIVATOR_RAIL, 6))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.ACTIVATOR_RAIL, 6))
 		                      .grid3x3("plasteel",
-		                               SwgItems.Material.PlasteelIngot, Items.STICK, SwgItems.Material.PlasteelIngot,
-		                               SwgItems.Material.PlasteelIngot, Items.REDSTONE_TORCH, SwgItems.Material.PlasteelIngot,
-		                               SwgItems.Material.PlasteelIngot, Items.STICK, SwgItems.Material.PlasteelIngot)
+		                               SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.STICK, SwgItems.Material.PlasteelIngot,
+		                               SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.REDSTONE_TORCH, SwgItems.Material.PlasteelIngot,
+		                               SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.STICK, SwgItems.Material.PlasteelIngot)
 		                      .build(assets);
-		RecipeGenerator.Shaped.of(new ItemStack(Items.DETECTOR_RAIL, 6))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.DETECTOR_RAIL, 6))
 		                      .grid3x3("plasteel",
 		                               SwgItems.Material.PlasteelIngot, null, SwgItems.Material.PlasteelIngot,
-		                               SwgItems.Material.PlasteelIngot, Items.STONE_PRESSURE_PLATE, SwgItems.Material.PlasteelIngot,
-		                               SwgItems.Material.PlasteelIngot, Items.REDSTONE, SwgItems.Material.PlasteelIngot)
+		                               SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.STONE_PRESSURE_PLATE, SwgItems.Material.PlasteelIngot,
+		                               SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.REDSTONE, SwgItems.Material.PlasteelIngot)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.PISTON))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.PISTON))
 		                      .grid3x3("plasteel",
 		                               ItemTags.PLANKS, ItemTags.PLANKS, ItemTags.PLANKS,
-		                               Items.COBBLESTONE, SwgItems.Material.PlasteelIngot, Items.COBBLESTONE,
-		                               Items.COBBLESTONE, Items.REDSTONE, Items.COBBLESTONE)
+		                               net.minecraft.item.Items.COBBLESTONE, SwgItems.Material.PlasteelIngot, net.minecraft.item.Items.COBBLESTONE,
+		                               net.minecraft.item.Items.COBBLESTONE, net.minecraft.item.Items.REDSTONE, net.minecraft.item.Items.COBBLESTONE)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.SMITHING_TABLE))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.SMITHING_TABLE))
 		                      .grid2x3("plasteel",
 		                               SwgItems.Material.PlasteelIngot, SwgItems.Material.PlasteelIngot,
 		                               ItemTags.PLANKS, ItemTags.PLANKS,
 		                               ItemTags.PLANKS, ItemTags.PLANKS)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.STONECUTTER))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.STONECUTTER))
 		                      .grid3x2("plasteel",
 		                               null, SwgItems.Material.PlasteelIngot, null,
-		                               Items.STONE, Items.STONE, Items.STONE)
+		                               net.minecraft.item.Items.STONE, net.minecraft.item.Items.STONE, net.minecraft.item.Items.STONE)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.TRIPWIRE_HOOK, 2))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.TRIPWIRE_HOOK, 2))
 		                      .grid1x3("plasteel",
 		                               SwgItems.Material.PlasteelIngot,
-		                               Items.STICK,
+		                               net.minecraft.item.Items.STICK,
 		                               ItemTags.PLANKS)
 		                      .build(assets);
 
-		RecipeGenerator.Shaped.of(new ItemStack(Items.LANTERN))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.LANTERN))
 		                      .grid3x3("plasteel",
 		                               SwgItems.Material.PlasteelNugget, SwgItems.Material.PlasteelNugget, SwgItems.Material.PlasteelNugget,
-		                               SwgItems.Material.PlasteelNugget, Items.TORCH, SwgItems.Material.PlasteelNugget,
+		                               SwgItems.Material.PlasteelNugget, net.minecraft.item.Items.TORCH, SwgItems.Material.PlasteelNugget,
 		                               SwgItems.Material.PlasteelNugget, SwgItems.Material.PlasteelNugget, SwgItems.Material.PlasteelNugget)
 		                      .build(assets);
-		RecipeGenerator.Shaped.of(new ItemStack(Items.SOUL_LANTERN))
+		RecipeGenerator.Shaped.of(new ItemStack(net.minecraft.item.Items.SOUL_LANTERN))
 		                      .grid3x3("plasteel",
 		                               SwgItems.Material.PlasteelNugget, SwgItems.Material.PlasteelNugget, SwgItems.Material.PlasteelNugget,
-		                               SwgItems.Material.PlasteelNugget, Items.SOUL_TORCH, SwgItems.Material.PlasteelNugget,
+		                               SwgItems.Material.PlasteelNugget, net.minecraft.item.Items.SOUL_TORCH, SwgItems.Material.PlasteelNugget,
 		                               SwgItems.Material.PlasteelNugget, SwgItems.Material.PlasteelNugget, SwgItems.Material.PlasteelNugget)
 		                      .build(assets);
 
@@ -536,8 +570,8 @@ public class PswgTarkin
 		RecipeGenerator.Shapeless.of(new ItemStack(SwgBlocks.Dirt.WetPourstone, 8), null)
 		                         .ingredient(SwgBlocks.Dirt.DesertLoam).ingredient(SwgBlocks.Dirt.DesertLoam).ingredient(SwgBlocks.Dirt.DesertLoam)
 		                         .ingredient(ItemTags.SAND).ingredient(ItemTags.SAND).ingredient(ItemTags.SAND)
-		                         .ingredient(Items.WHEAT).ingredient(Items.WHEAT)
-		                         .ingredient(Items.WATER_BUCKET)
+		                         .ingredient(net.minecraft.item.Items.WHEAT).ingredient(net.minecraft.item.Items.WHEAT)
+		                         .ingredient(net.minecraft.item.Items.WATER_BUCKET)
 		                         .build(assets);
 
 		RecipeGenerator.Shaped.of(new ItemStack(SwgBlocks.Dirt.WetPourstoneStairs, 6))
@@ -560,8 +594,8 @@ public class PswgTarkin
 		RecipeGenerator.Shapeless.of(new ItemStack(SwgBlocks.Dirt.RuinedWetPourstone, 8), null)
 		                         .ingredient(SwgBlocks.Dirt.DesertLoam).ingredient(SwgBlocks.Dirt.DesertLoam).ingredient(SwgBlocks.Dirt.DesertLoam)
 		                         .ingredient(ItemTags.SAND).ingredient(ItemTags.SAND).ingredient(ItemTags.SAND)
-		                         .ingredient(Items.WHEAT).ingredient(Items.WHEAT)
-		                         .ingredient(Items.WATER_BUCKET)
+		                         .ingredient(net.minecraft.item.Items.WHEAT).ingredient(net.minecraft.item.Items.WHEAT)
+		                         .ingredient(net.minecraft.item.Items.WATER_BUCKET)
 		                         .build(assets);
 
 		RecipeGenerator.Shaped.of(new ItemStack(SwgBlocks.Dirt.RuinedWetPourstoneStairs, 6))
@@ -587,22 +621,22 @@ public class PswgTarkin
 		//Light Blocks
 		RecipeGenerator.Shaped.of(new ItemStack(SwgBlocks.Light.Fixture, 3))
 		                      .grid3x3(null,
-		                               Items.GLASS_PANE, Items.GLASS_PANE, Items.GLASS_PANE,
-		                               Items.GLASS_PANE, SwgItems.CraftingComponents.LightPanel, Items.GLASS_PANE,
-		                               Items.GLASS_PANE, Items.GLASS_PANE, Items.GLASS_PANE)
+		                               net.minecraft.item.Items.GLASS_PANE, net.minecraft.item.Items.GLASS_PANE, net.minecraft.item.Items.GLASS_PANE,
+		                               net.minecraft.item.Items.GLASS_PANE, SwgItems.CraftingComponents.LightPanel, net.minecraft.item.Items.GLASS_PANE,
+		                               net.minecraft.item.Items.GLASS_PANE, net.minecraft.item.Items.GLASS_PANE, net.minecraft.item.Items.GLASS_PANE)
 		                      .build(assets);
 
 		RecipeGenerator.Shaped.of(new ItemStack(SwgBlocks.Light.RedHangar, 4))
 		                      .grid3x3(null,
 		                               null, SwgItems.Material.PlasteelIngot, null,
 		                               SwgItems.Material.PlasteelIngot, SwgItems.CraftingComponents.LightPanel, SwgItems.Material.PlasteelIngot,
-		                               null, Items.RED_DYE, null)
+		                               null, net.minecraft.item.Items.RED_DYE, null)
 		                      .build(assets);
 		RecipeGenerator.Shaped.of(new ItemStack(SwgBlocks.Light.BlueHangar, 4))
 		                      .grid3x3(null,
 		                               null, SwgItems.Material.PlasteelIngot, null,
 		                               SwgItems.Material.PlasteelIngot, SwgItems.CraftingComponents.LightPanel, SwgItems.Material.PlasteelIngot,
-		                               null, Items.BLUE_DYE, null)
+		                               null, net.minecraft.item.Items.BLUE_DYE, null)
 		                      .build(assets);
 
 		RecipeGenerator.Shaped.of(new ItemStack(SwgBlocks.Light.WallCluster, 4))
@@ -645,19 +679,19 @@ public class PswgTarkin
 		RecipeGenerator.Shaped.of(new ItemStack(SwgBlocks.Crate.OrangeKyber))
 		                      .grid3x3(null,
 		                               SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot,
-		                               SwgItems.Material.TitaniumIngot, Items.ORANGE_DYE, SwgItems.Material.TitaniumIngot,
+		                               SwgItems.Material.TitaniumIngot, net.minecraft.item.Items.ORANGE_DYE, SwgItems.Material.TitaniumIngot,
 		                               SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot)
 		                      .build(assets);
 		RecipeGenerator.Shaped.of(new ItemStack(SwgBlocks.Crate.GrayKyber))
 		                      .grid3x3(null,
 		                               SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot,
-		                               SwgItems.Material.TitaniumIngot, Items.GRAY_DYE, SwgItems.Material.TitaniumIngot,
+		                               SwgItems.Material.TitaniumIngot, net.minecraft.item.Items.GRAY_DYE, SwgItems.Material.TitaniumIngot,
 		                               SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot)
 		                      .build(assets);
 		RecipeGenerator.Shaped.of(new ItemStack(SwgBlocks.Crate.BlackKyber))
 		                      .grid3x3(null,
 		                               SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot,
-		                               SwgItems.Material.TitaniumIngot, Items.BLACK_DYE, SwgItems.Material.TitaniumIngot,
+		                               SwgItems.Material.TitaniumIngot, net.minecraft.item.Items.BLACK_DYE, SwgItems.Material.TitaniumIngot,
 		                               SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot, SwgItems.Material.TitaniumIngot)
 		                      .build(assets);
 
@@ -665,7 +699,7 @@ public class PswgTarkin
 		                      .grid3x3(null,
 		                               SwgItems.Material.DeshIngot, SwgItems.Material.DeshIngot, SwgItems.Material.DeshIngot,
 		                               SwgItems.Material.DeshIngot, null, SwgItems.Material.DeshIngot,
-		                               Items.IRON_INGOT, Items.IRON_INGOT, Items.IRON_INGOT)
+		                               net.minecraft.item.Items.IRON_INGOT, net.minecraft.item.Items.IRON_INGOT, net.minecraft.item.Items.IRON_INGOT)
 		                      .build(assets);
 
 		//Crafting Components
@@ -713,67 +747,31 @@ public class PswgTarkin
 
 	public static void generateItems(List<BuiltAsset> assets)
 	{
-		final var TAG_TRINKETS_CHEST_BACK = TagKey.of(Registry.ITEM_KEY, new Identifier("trinkets", "chest/back"));
+		Tarkin.registerItemFields(SwgItems.class, assets);
 
-		ItemGenerator.tool(SwgItems.Material.DurasteelAxe)
-		             .build(assets);
-		ItemGenerator.tool(SwgItems.Material.TitaniumAxe)
-		             .build(assets);
-		ItemGenerator.tool(SwgItems.Material.BeskarAxe)
-		             .build(assets);
+		PswgContent.getBlasterPresets().keySet().stream()
+		           .filter(id -> id.getNamespace().equals(Resources.MODID))
+		           .forEach(id -> ItemGenerator
+				           .empty(Registries.ITEM.get(SwgItems.getBlasterRegistrationId(id)))
+				           .lang(LanguageProvider::empty)
+				           .build(assets)
+		           );
 
-		ItemGenerator.empty(SwgItems.Blaster.Blaster).build(assets);
-		ItemGenerator.basic(SwgItems.Blaster.SmallPowerPack).build(assets);
-
-		ItemGenerator.basic(SwgItems.CraftingComponents.ElectricMotor).build(assets);
-		ItemGenerator.basic(SwgItems.CraftingComponents.LightPanel).build(assets);
-		ItemGenerator.basic(SwgItems.CraftingComponents.DisplayPanel).build(assets);
-		ItemGenerator.basic(SwgItems.CraftingComponents.Turbine).build(assets);
-		ItemGenerator.basic(SwgItems.CraftingComponents.BallBearing).build(assets);
-		ItemGenerator.basic(SwgItems.CraftingComponents.DeshWire).build(assets);
-		ItemGenerator.basic(SwgItems.CraftingComponents.DeshCoil).build(assets);
-		ItemGenerator.basic(SwgItems.CraftingComponents.PlasteelRod).build(assets);
-		ItemGenerator.basic(SwgItems.CraftingComponents.DurasteelRod).build(assets);
-		for (var entry : SwgItems.CraftingComponents.DoorInsert.entrySet())
+		for (var entry : SwgItems.Door.DoorInsert.entrySet())
 			ItemGenerator.basic(entry.getValue()).build(assets);
 
-		ItemGenerator.basic(SwgItems.Natural.StrippedJaporBranch).build(assets);
-		ItemGenerator.basic(SwgItems.Natural.MoloFlower).build(assets);
-		ItemGenerator.basic(SwgItems.Natural.SaltPile).build(assets);
-
-		ItemGenerator.basic(SwgItems.Material.ExoniumCrystal).build(assets);
-		ItemGenerator.basic(SwgItems.Material.HeliciteCrystal).build(assets);
-		ItemGenerator.basic(SwgItems.Material.LommiteCrystal).build(assets);
-		ItemGenerator.basic(SwgItems.Material.ThorilideCrystal).build(assets);
-		ItemGenerator.basic(SwgItems.Material.ZersiumCrystal).build(assets);
-
-		ItemGenerator.basic(SwgItems.Material.RubindumShard).build(assets);
-
-		ItemGenerator.basic(SwgItems.Debug.Debug).build(assets);
-
 		ItemGenerator.armor(SwgItems.Armor.Stormtrooper, assets);
+		ItemGenerator.armor(SwgItems.Armor.Shocktrooper, assets);
+		ItemGenerator.armor(SwgItems.Armor.Purgetrooper, assets);
+		ItemGenerator.armor(SwgItems.Armor.Artillerytrooper, assets);
 		ItemGenerator.armor(SwgItems.Armor.Sandtrooper, assets);
-		ItemGenerator.basic(SwgItems.Armor.SandtrooperBackpack)
-		             .tag(TAG_TRINKETS_CHEST_BACK)
-		             .build(assets);
 		ItemGenerator.armor(SwgItems.Armor.Deathtrooper, assets);
+		ItemGenerator.armor(SwgItems.Armor.Scouttrooper, assets);
+		ItemGenerator.armor(SwgItems.Armor.HovertankPilot, assets);
+		ItemGenerator.armor(SwgItems.Armor.Incineratortrooper, assets);
+		ItemGenerator.armor(SwgItems.Armor.Shoretrooper, assets);
 		ItemGenerator.armor(SwgItems.Armor.Jumptrooper, assets);
-		ItemGenerator.basic(SwgItems.Armor.JumptrooperJetpack)
-		             .tag(TAG_TRINKETS_CHEST_BACK)
-		             .build(assets);
-		ItemGenerator.basic(SwgItems.Armor.RebelPilot).build(assets);
-		ItemGenerator.basic(SwgItems.Armor.RebelForest).build(assets);
-		ItemGenerator.basic(SwgItems.Armor.RebelTropical).build(assets);
 
-		ItemGenerator.basic(SwgItems.Cable.Power).build(assets);
-
-		ItemGenerator.basic(SwgItems.Material.HeliciteDust).build(assets);
-		ItemGenerator.basic(SwgItems.Material.LommiteDust).build(assets);
-		ItemGenerator.basic(SwgItems.Material.ThorilideDust).build(assets);
-		ItemGenerator.basic(SwgItems.Material.ZersiumDust).build(assets);
-
-		ItemGenerator.basic(SwgItems.FoodPrep.DurasteelCup).build(assets);
-		ItemGenerator.basic(SwgItems.FoodPrep.DeshCup).build(assets);
 		for (var entry : SwgItems.FoodPrep.Cups.entrySet())
 			ItemGenerator.basic(entry.getValue()).build(assets);
 		for (var entry : SwgItems.FoodPrep.Glasses)
@@ -782,231 +780,16 @@ public class PswgTarkin
 			ItemGenerator.basic(entry).build(assets);
 		for (var entry : SwgItems.FoodPrep.PlasticBottles)
 			ItemGenerator.basic(entry).build(assets);
-
-		ItemGenerator.basic(SwgItems.Food.JoganFruit).build(assets);
-		ItemGenerator.basic(SwgItems.Food.ChasukaLeaf).build(assets);
-		ItemGenerator.basic(SwgItems.Food.Meiloorun).build(assets);
-		ItemGenerator.basic(SwgItems.Food.MynockWing).build(assets);
-		ItemGenerator.basic(SwgItems.Food.FriedMynockWing).build(assets);
-		ItemGenerator.basic(SwgItems.Food.BanthaChop).build(assets);
-		ItemGenerator.basic(SwgItems.Food.BanthaSteak).build(assets);
-		ItemGenerator.basic(SwgItems.Food.NerfChop).build(assets);
-		ItemGenerator.basic(SwgItems.Food.NerfSteak).build(assets);
-		ItemGenerator.basic(SwgItems.Food.GizkaChop).build(assets);
-		ItemGenerator.basic(SwgItems.Food.GizkaSteak).build(assets);
-
-		ItemGenerator.basic(SwgItems.Food.FlangthTakeout).build(assets);
-		ItemGenerator.basic(SwgItems.Food.FlangthPlate).build(assets);
-
-		ItemGenerator.basic(SwgItems.Food.DeathStickRed).build(assets);
-		ItemGenerator.basic(SwgItems.Food.DeathStickYellow).build(assets);
-
-		ItemGenerator.basic(SwgItems.Food.MysteriousSmoothie).build(assets);
-		ItemGenerator.basic(SwgItems.Food.Kreetlejuice).build(assets);
-		ItemGenerator.basic(SwgItems.Food.AbsynthesizedMalt).build(assets);
-		ItemGenerator.basic(SwgItems.Food.CoronetCocktail).build(assets);
-
-		ItemGenerator.basic(SwgItems.Food.ClassicSoda).build(assets);
-		ItemGenerator.basic(SwgItems.Food.DietSoda).build(assets);
-		ItemGenerator.basic(SwgItems.Food.CitrusSoda).build(assets);
-
-		ItemGenerator.basic(SwgItems.Food.BottledWater).build(assets);
-
-		ItemGenerator.basic(SwgItems.Food.BlueMilk).build(assets);
-		ItemGenerator.basic(SwgItems.Food.BlueMilkGlass).build(assets);
-		ItemGenerator.basic(SwgItems.Food.BlueYogurt).build(assets);
-		ItemGenerator.basic(SwgItems.Food.BanthaCookie).build(assets);
-
-		ItemGenerator.basic(SwgItems.Food.QrikkiBread).build(assets);
-		ItemGenerator.basic(SwgItems.Food.QrikkiWaffle).build(assets);
-
-		ItemGenerator.basic(SwgItems.Food.AhrisaBowl).build(assets);
-		ItemGenerator.basic(SwgItems.Food.BlackMelon).build(assets);
-		ItemGenerator.basic(SwgItems.Seeds.ChasukaSeeds).build(assets);
-		ItemGenerator.basic(SwgItems.Food.DesertPlums).build(assets);
-		ItemGenerator.basic(SwgItems.Food.DriedPoontenGrass).build(assets);
-		ItemGenerator.basic(SwgItems.Food.HarounBread).build(assets);
-		ItemGenerator.basic(SwgItems.Food.HkakBean).build(assets);
-		ItemGenerator.basic(SwgItems.Food.PallieFruit).build(assets);
-		ItemGenerator.basic(SwgItems.Food.PikaFruit).build(assets);
-		ItemGenerator.basic(SwgItems.Food.Tuber).build(assets);
-		ItemGenerator.basic(SwgItems.Food.CookedEopieLoin).build(assets);
-		ItemGenerator.basic(SwgItems.Food.CrispyGorg).build(assets);
-		ItemGenerator.basic(SwgItems.Food.DebDeb).build(assets);
-		ItemGenerator.basic(SwgItems.Food.DewbackEgg).build(assets);
-		ItemGenerator.basic(SwgItems.Food.DewbackOmelette).build(assets);
-		ItemGenerator.basic(SwgItems.Food.EopieLoin).build(assets);
-		ItemGenerator.basic(SwgItems.Food.HubbaGourd).build(assets);
-		ItemGenerator.basic(SwgItems.Food.JerbaRack).build(assets);
-		ItemGenerator.basic(SwgItems.Food.JerbaRib).build(assets);
-		ItemGenerator.basic(SwgItems.Food.KraytMeat).build(assets);
-		ItemGenerator.basic(SwgItems.Food.RawSkettoNugget).build(assets);
-		ItemGenerator.basic(SwgItems.Food.RoastKrayt).build(assets);
-		ItemGenerator.basic(SwgItems.Food.RontoChuck).build(assets);
-		ItemGenerator.basic(SwgItems.Food.TuberMash).build(assets);
-		ItemGenerator.basic(SwgItems.Food.VaporatorMushroom).build(assets);
-		ItemGenerator.basic(SwgItems.Food.WorrtEgg).build(assets);
-
-		ItemGenerator.basic(SwgItems.MobDrops.FaaBucket).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.LaaBucket).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.CorpseOfGorg).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.BanthaHorn).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.DewbackBone).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.DewbackBoneShard).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.EyeOfSketto).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.Hide).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.KraytPearl).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.KraytTooth).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.KreetleHusk).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.LizardGizzard).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.SquillLiver).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.TongueOfWorrt).build(assets);
-		ItemGenerator.basic(SwgItems.MobDrops.ToughHide).build(assets);
-
-		ItemGenerator.tool(SwgItems.Material.DurasteelHoe)
-		             .build(assets);
-		ItemGenerator.tool(SwgItems.Material.TitaniumHoe)
-		             .build(assets);
-		ItemGenerator.tool(SwgItems.Material.BeskarHoe)
-		             .build(assets);
-
-		ItemGenerator.basic(SwgItems.Material.BeskarIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.ChromiumIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.CortosisIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.DeshIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.KeleriumIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.IoniteIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.DiatiumIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.DurasteelIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.PlasteelIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.TitaniumIngot).build(assets);
-		ItemGenerator.basic(SwgItems.Material.TransparisteelIngot).build(assets);
-
-		ItemGenerator.empty(SwgItems.Lightsaber.Lightsaber).build(assets);
-
-		// TODO: ItemGenerator.basic(SwgItems.Nugget.Beskar).build(assets);
-		ItemGenerator.basic(SwgItems.Material.ChromiumNugget).build(assets);
-		// TODO: ItemGenerator.basic(SwgItems.Nugget.Cortosis).build(assets);
-		ItemGenerator.basic(SwgItems.Material.DeshNugget).build(assets);
-		ItemGenerator.basic(SwgItems.Material.DiatiumNugget).build(assets);
-		ItemGenerator.basic(SwgItems.Material.DurasteelNugget).build(assets);
-		ItemGenerator.basic(SwgItems.Material.PlasteelNugget).build(assets);
-		ItemGenerator.basic(SwgItems.Material.TitaniumNugget).build(assets);
-		ItemGenerator.basic(SwgItems.Material.IoniteNugget).build(assets);
-		// TODO: ItemGenerator.basic(SwgItems.Nugget.Transparisteel).build(assets);
-
-		ItemGenerator.basic(SwgItems.Material.BeskarRaw).build(assets);
-		ItemGenerator.basic(SwgItems.Material.IoniteRaw).build(assets);
-		ItemGenerator.basic(SwgItems.Material.ChromiumRaw).build(assets);
-		ItemGenerator.basic(SwgItems.Material.CortosisRaw).build(assets);
-		ItemGenerator.basic(SwgItems.Material.DeshRaw).build(assets);
-		ItemGenerator.basic(SwgItems.Material.DiatiumRaw).build(assets);
-		ItemGenerator.basic(SwgItems.Material.KeleriumRaw).build(assets);
-		ItemGenerator.basic(SwgItems.Material.RubindumRaw).build(assets);
-		ItemGenerator.basic(SwgItems.Material.TitaniumRaw).build(assets);
-
-		ItemGenerator.tool(SwgItems.Material.DurasteelPickaxe)
-		             .build(assets);
-		ItemGenerator.tool(SwgItems.Material.TitaniumPickaxe)
-		             .build(assets);
-		ItemGenerator.tool(SwgItems.Material.BeskarPickaxe)
-		             .build(assets);
-
-		ItemGenerator.tool(SwgItems.Material.DurasteelShovel)
-		             .build(assets);
-		ItemGenerator.tool(SwgItems.Material.TitaniumShovel)
-		             .build(assets);
-		ItemGenerator.tool(SwgItems.Material.BeskarShovel)
-		             .build(assets);
-
-		ItemGenerator.basic(SwgItems.Spawners.XwingT65b).build(assets);
-		ItemGenerator.basic(SwgItems.Spawners.LandspeederX34).build(assets);
-
-		ItemGenerator.spawn_egg(SwgItems.Spawners.Faa).build(assets);
-		ItemGenerator.spawn_egg(SwgItems.Spawners.Laa).build(assets);
-		ItemGenerator.spawn_egg(SwgItems.Spawners.Worrt).build(assets);
 	}
 
 	public static void generateBlocks(List<BuiltAsset> assets)
 	{
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Barrel.Desh)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
+		Tarkin.registerBlockFields(SwgBlocks.class, assets);
 
-		BlockGenerator.blockNoModelLangEntry(SwgBlocks.Crate.OrangeKyber)
-		              .lootTable(LootTableFile::multiBlockOnlyCenter)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelLangEntry(SwgBlocks.Crate.GrayKyber)
-		              .lootTable(LootTableFile::multiBlockOnlyCenter)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelLangEntry(SwgBlocks.Crate.BlackKyber)
-		              .lootTable(LootTableFile::multiBlockOnlyCenter)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Crate.Toolbox)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Crate.BrownSegmented)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Crate.GraySegmented)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Crate.GrayPanel)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Crate.ImperialCorrugatedCrate)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
 		for (var block : SwgBlocks.Crate.CorrugatedCrate.values())
 			BlockGenerator.blockNoModelDefaultDrops(block)
 			              .blockTag(BlockTags.PICKAXE_MINEABLE)
 			              .build(assets);
-
-		BlockGenerator.blockNoModelLangEntry(SwgBlocks.Door.Sliding1x2)
-		              .lootTable(LootTableFile::door)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
-		BlockGenerator.particleOnly(SwgBlocks.Door.TatooineHomeTop, new Identifier("block/stone"))
-		              .itemModel(ModelFile::ofBlock)
-		              .blockTag(SwgTags.Block.TATOOINE_DOORS)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		SwgBlocks.Door.TatooineHomeBottoms.values().forEach(b -> BlockGenerator.particleOnly(b, new Identifier("block/stone"))
-		                                                                       .itemModel(block -> {
-			                                                                       // Cursed generator method because the block names have the color position swapped, and the
-			                                                                       // controller is actually the item in your inventory
-			                                                                       var reg = AssetGenerator.getRegistryName(block);
-			                                                                       var id = new Identifier(reg.getNamespace(), reg.getPath().replace("_controller", ""));
-			                                                                       var itemTexturePath = reg.getPath().replace("_controller", "");
-			                                                                       if (itemTexturePath.startsWith("tatooine_home_door_"))
-				                                                                       itemTexturePath = itemTexturePath.replace("tatooine_home_door_", "") + "_tatooine_home_door";
-			                                                                       var texId = new Identifier(reg.getNamespace(), "item/" + itemTexturePath);
-			                                                                       return ModelFile
-					                                                                       .ofModel(id, new Identifier("item/generated"))
-					                                                                       .texture("layer0", texId);
-		                                                                       })
-		                                                                       .blockTag(SwgTags.Block.TATOOINE_DOORS)
-		                                                                       .blockTag(BlockTags.PICKAXE_MINEABLE)
-		                                                                       .build(assets));
-
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Cage.Creature)
-		              .state(BlockStateModelGenerator::createSingletonBlockState)
-		              .model(ModelFile::cube_no_cull)
-		              .itemModel(ModelFile::ofBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Cage.CreatureTerrarium)
-		              .state(BlockStateModelGenerator::createSingletonBlockState)
-		              .model(ModelFile::cube_no_cull)
-		              .itemModel(ModelFile::ofBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
 
 		for (var b : SwgBlocks.Cage.DyedCreatureTerrarium.values())
 			BlockGenerator.blockNoModelDefaultDrops(b)
@@ -1016,16 +799,6 @@ public class PswgTarkin
 			              .blockTag(BlockTags.PICKAXE_MINEABLE)
 			              .build(assets);
 
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Light.RedHangar)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Light.BlueHangar)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelPicklingDrops(SwgBlocks.Light.WallCluster)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
 		BlockGenerator.basic(SwgBlocks.Light.Fixture)
 		              .state((block, modelId) -> BlockStateGenerator.forBooleanProperty(block, InvertedLampBlock.LIT, IdentifierUtil.concat(modelId, "_on"), modelId))
 		              .models(block -> ModelFile.cubes(block, "", "_on"))
@@ -1033,182 +806,61 @@ public class PswgTarkin
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 
-		BlockGenerator.leaves(SwgBlocks.Tree.SequoiaLeaves)
-		              .blockTag(BlockTags.LEAVES)
-		              .blockTag(FabricMineableTags.SHEARS_MINEABLE)
-		              .itemTag(ItemTags.LEAVES)
-		              .build(assets);
-		BlockGenerator.tangentFan(SwgBlocks.Tree.JaporLeaves)
-		              .blockTag(BlockTags.LEAVES)
-		              .blockTag(FabricMineableTags.SHEARS_MINEABLE)
-		              .itemTag(ItemTags.LEAVES)
-		              .build(assets);
-
 		BlockGenerator.column(SwgBlocks.Tree.SequoiaLog, Resources.id("block/sequoia_log_top"))
-		              .blockTag(SwgTags.Block.SEQUOIA_LOG)
+		              .blockTag(SwgTags.Blocks.SEQUOIA_LOG)
 		              .blockTag(BlockTags.AXE_MINEABLE)
-		              .itemTag(SwgTags.Item.SEQUOIA_LOG)
+		              .itemTag(SwgTags.Items.SEQUOIA_LOG)
 		              .build(assets);
 		BlockGenerator.column(SwgBlocks.Tree.StrippedSequoiaLog, Resources.id("block/stripped_sequoia_log_top"))
-		              .blockTag(SwgTags.Block.SEQUOIA_LOG)
+		              .blockTag(SwgTags.Blocks.SEQUOIA_LOG)
 		              .blockTag(BlockTags.AXE_MINEABLE)
-		              .itemTag(SwgTags.Item.SEQUOIA_LOG)
+		              .itemTag(SwgTags.Items.SEQUOIA_LOG)
 		              .build(assets);
 		BlockGenerator.column(SwgBlocks.Tree.MossySequoiaLog, Resources.id("block/mossy_sequoia_log_top"))
-		              .blockTag(SwgTags.Block.SEQUOIA_LOG)
+		              .blockTag(SwgTags.Blocks.SEQUOIA_LOG)
 		              .blockTag(BlockTags.AXE_MINEABLE)
-		              .itemTag(SwgTags.Item.SEQUOIA_LOG)
+		              .itemTag(SwgTags.Items.SEQUOIA_LOG)
 		              .build(assets);
 		BlockGenerator.column(SwgBlocks.Tree.JaporLog, Resources.id("block/japor_log_top"))
-		              .blockTag(SwgTags.Block.JAPOR_LOG)
+		              .blockTag(SwgTags.Blocks.JAPOR_LOG)
 		              .blockTag(BlockTags.AXE_MINEABLE)
-		              .itemTag(SwgTags.Item.JAPOR_LOG)
+		              .itemTag(SwgTags.Items.JAPOR_LOG)
 		              .build(assets);
 		BlockGenerator.column(SwgBlocks.Tree.TatooineLog, Resources.id("block/tatooine_log_top"))
-		              .blockTag(SwgTags.Block.TATOOINE_LOG)
+		              .blockTag(SwgTags.Blocks.TATOOINE_LOG)
 		              .blockTag(BlockTags.AXE_MINEABLE)
-		              .itemTag(SwgTags.Item.TATOOINE_LOG)
+		              .itemTag(SwgTags.Items.TATOOINE_LOG)
 		              .build(assets);
 
 		BlockGenerator.basic(SwgBlocks.Tree.SequoiaWood, Resources.id("block/sequoia_log"))
-		              .blockTag(SwgTags.Block.SEQUOIA_LOG)
+		              .blockTag(SwgTags.Blocks.SEQUOIA_LOG)
 		              .blockTag(BlockTags.AXE_MINEABLE)
-		              .itemTag(SwgTags.Item.SEQUOIA_LOG)
+		              .itemTag(SwgTags.Items.SEQUOIA_LOG)
 		              .build(assets);
 		BlockGenerator.basic(SwgBlocks.Tree.JaporWood, Resources.id("block/japor_log"))
-		              .blockTag(SwgTags.Block.JAPOR_LOG)
+		              .blockTag(SwgTags.Blocks.JAPOR_LOG)
 		              .blockTag(BlockTags.AXE_MINEABLE)
-		              .itemTag(SwgTags.Item.JAPOR_LOG)
+		              .itemTag(SwgTags.Items.JAPOR_LOG)
 		              .build(assets);
 		BlockGenerator.basic(SwgBlocks.Tree.TatooineWood, Resources.id("block/tatooine_log"))
-		              .blockTag(SwgTags.Block.TATOOINE_LOG)
+		              .blockTag(SwgTags.Blocks.TATOOINE_LOG)
 		              .blockTag(BlockTags.AXE_MINEABLE)
-		              .itemTag(SwgTags.Item.TATOOINE_LOG)
+		              .itemTag(SwgTags.Items.TATOOINE_LOG)
 		              .build(assets);
 
 		BlockGenerator.basicWoodProducts(SwgBlocks.Tree.JaporProducts, BlockTags.AXE_MINEABLE, assets);
 		BlockGenerator.basicWoodProducts(SwgBlocks.Tree.SequoiaProducts, BlockTags.AXE_MINEABLE, assets);
 
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Machine.Spoked)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
-		BlockGenerator.basicRandomRotation(SwgBlocks.Dirt.DesertLoam)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .blockTag(BlockTags.DEAD_BUSH_MAY_PLACE_ON)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Dirt.WetPourstone)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
 		BlockGenerator.stairs(SwgBlocks.Dirt.WetPourstoneStairs, Resources.id("block/wet_pourstone"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 		BlockGenerator.verticalSlab(SwgBlocks.Dirt.WetPourstoneSlab, Resources.id("block/wet_pourstone"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Dirt.RuinedWetPourstone)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
 		BlockGenerator.stairs(SwgBlocks.Dirt.RuinedWetPourstoneStairs, Resources.id("block/ruined_wet_pourstone"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 		BlockGenerator.verticalSlab(SwgBlocks.Dirt.RuinedWetPourstoneSlab, Resources.id("block/ruined_wet_pourstone"))
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
-		BlockGenerator.basicRandomRotation(SwgBlocks.Gravel.Jundland)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.Imperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.WhiteStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.OrangeStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.MagentaStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.LightBlueStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.YellowStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.LimeStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.PinkStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.GrayStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.LightGrayStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.CyanStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.PurpleStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.BlueStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.BrownStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.GreenStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.RedStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Glass.BlackStainedImperial)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
-		BlockGenerator.basic(SwgBlocks.Ore.BeskarBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Ore.ChromiumBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Ore.CortosisBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Ore.DeshBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Ore.DiatiumBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Composite.DurasteelBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Ore.LommiteBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Composite.PlasteelBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Ore.TitaniumBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Ore.ZersiumBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Ore.HeliciteBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.block(SwgBlocks.Ore.IoniteBlock)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.block(SwgBlocks.Ore.ThorilideBlock)
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 
@@ -1256,10 +908,6 @@ public class PswgTarkin
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 
-		BlockGenerator.basic(SwgBlocks.Panel.RustedMetal)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
 		BlockGenerator.column(SwgBlocks.Panel.ImperialCutoutPipes, Resources.id("block/imperial_cutout_pipes_face"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
@@ -1278,10 +926,6 @@ public class PswgTarkin
 		BlockGenerator.basicStoneProducts(SwgBlocks.Panel.WhiteImperialPanelBlank, BlockTags.PICKAXE_MINEABLE, assets);
 		BlockGenerator.basicStoneProducts(SwgBlocks.Panel.GrayImperialPanelBlank, BlockTags.PICKAXE_MINEABLE, assets);
 		BlockGenerator.basicStoneProducts(SwgBlocks.Panel.LightGrayImperialPanelBlank, BlockTags.PICKAXE_MINEABLE, assets);
-
-		BlockGenerator.basic(SwgBlocks.Panel.BlackImperialPanelTile)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
 
 		for (var e : SwgBlocks.Panel.BlackImperialPanelPatternA)
 			BlockGenerator.basic(e)
@@ -1310,67 +954,6 @@ public class PswgTarkin
 		//		BlockGenerator.basic(SwgBlocks.Panel.ImperialCutoutPipes)
 		//		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		//		              .build(assets);
-
-		BlockGenerator.basic(SwgBlocks.Panel.BlackImperialPanelSectional)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.BlackImperialPanelSectional1)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.BlackImperialPanelSectional2)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.GrayImperialPanelSectional)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.GrayImperialPanelSectional1)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.GrayImperialPanelSectional2)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.LightGrayImperialPanelSectional)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.LightGrayImperialPanelSectional1)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.LightGrayImperialPanelSectional2)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.WhiteImperialPanelSectional)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.WhiteImperialPanelSectional1)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.WhiteImperialPanelSectional2)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.BlackImperialPanelBordered)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.BlackImperialPanelSplit)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.BlackImperialPanelThinBordered)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.ExternalImperialPlatingConnected)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.LargeImperialPlatingConnected)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.RustedLargeImperialPlatingConnected)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.MossyLargeImperialPlatingConnected)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.LargeLightGrayImperialPlatingConnected)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
 
 		BlockGenerator.column(SwgBlocks.Panel.GrayImperialLightHalf1, Resources.id("block/gray_imperial_panel_pattern_3"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
@@ -1433,36 +1016,6 @@ public class PswgTarkin
 		BlockGenerator.staticColumn(SwgBlocks.Panel.MossyGrayImperialPanelPattern5, Resources.id("block/mossy_gray_imperial_panel_pattern_3"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.GrayImperialPanelPattern6)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.RustedGrayImperialPanelPattern6)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.MossyGrayImperialPanelPattern6)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.GrayImperialPanelPattern7)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.GrayImperialPanelPattern8)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.GrayImperialPanelPattern9)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.RustedGrayImperialPanelPattern9)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.MossyGrayImperialPanelPattern9)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.GrayImperialPanelPattern10)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Panel.GrayImperialPanelPattern11)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
 
 		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Panel.ImperialPanelTall1)
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
@@ -1475,10 +1028,6 @@ public class PswgTarkin
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Panel.ImperialLightTall2)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
-
-		BlockGenerator.basic(SwgBlocks.Panel.LabWall)
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 
@@ -1511,63 +1060,38 @@ public class PswgTarkin
 		BlockGenerator.block(SwgBlocks.Sand.Desert)
 		              .state(BlockStateModelGenerator::createBlockStateWithRandomHorizontalRotations)
 		              .lootTable(LootTableFile.singleSelfWithBonus(SwgItems.Food.BlackMelon, 0.1f, 2))
-		              .blockTag(SwgTags.Block.DESERT_SAND)
-		              .itemTag(SwgTags.Item.DESERT_SAND)
+		              .blockTag(SwgTags.Blocks.DESERT_SAND)
+		              .itemTag(SwgTags.Items.DESERT_SAND)
 		              .build(assets);
 		BlockGenerator.block(SwgBlocks.Sand.Pit)
 		              .state(BlockStateModelGenerator::createBlockStateWithRandomHorizontalRotations)
 		              .lootTable(LootTableFile.singleSelfWithBonus(SwgItems.Food.BlackMelon, 0.24f, 2))
-		              .blockTag(SwgTags.Block.DESERT_SAND)
-		              .itemTag(SwgTags.Item.DESERT_SAND)
+		              .blockTag(SwgTags.Blocks.DESERT_SAND)
+		              .itemTag(SwgTags.Items.DESERT_SAND)
 		              .build(assets);
 		BlockGenerator.block(SwgBlocks.Sand.Fine)
 		              .lootTable(LootTableFile.singleSelfWithBonus(SwgItems.Food.BlackMelon, 0.18f, 2))
-		              .blockTag(SwgTags.Block.DESERT_SAND)
-		              .itemTag(SwgTags.Item.DESERT_SAND)
+		              .blockTag(SwgTags.Blocks.DESERT_SAND)
+		              .itemTag(SwgTags.Items.DESERT_SAND)
 		              .build(assets);
 		BlockGenerator.accumulatingLayers(SwgBlocks.Sand.LooseDesert)
-		              .blockTag(SwgTags.Block.DESERT_SAND)
-		              .itemTag(SwgTags.Item.DESERT_SAND)
+		              .blockTag(SwgTags.Blocks.DESERT_SAND)
+		              .itemTag(SwgTags.Items.DESERT_SAND)
 		              .build(assets);
 		BlockGenerator.block(SwgBlocks.Sand.Canyon)
 		              .state(BlockStateModelGenerator::createBlockStateWithRandomHorizontalRotations)
 		              .lootTable(LootTableFile.singleSelfWithBonus(SwgItems.Food.BlackMelon, 0.04f, 2))
-		              .blockTag(SwgTags.Block.DESERT_SAND)
-		              .itemTag(SwgTags.Item.DESERT_SAND)
+		              .blockTag(SwgTags.Blocks.DESERT_SAND)
+		              .itemTag(SwgTags.Items.DESERT_SAND)
 		              .build(assets);
 
-		BlockGenerator.basicStoneProducts(SwgBlocks.Stone.Canyon, SwgTags.Block.DESERT_SANDSTONE, assets);
+		BlockGenerator.basicStoneProducts(SwgBlocks.Stone.Canyon, SwgTags.Blocks.DESERT_SANDSTONE, assets);
 
-		BlockGenerator.basic(SwgBlocks.Stone.CanyonBricks)
-		              .blockTag(SwgTags.Block.DESERT_SANDSTONE)
-		              .itemTag(SwgTags.Item.DESERT_SANDSTONE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Stone.PolishedCanyon)
-		              .blockTag(SwgTags.Block.DESERT_SANDSTONE)
-		              .itemTag(SwgTags.Item.DESERT_SANDSTONE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Stone.ChiseledCanyon)
-		              .blockTag(SwgTags.Block.DESERT_SANDSTONE)
-		              .itemTag(SwgTags.Item.DESERT_SANDSTONE)
-		              .build(assets);
+		BlockGenerator.stoneProducts(SwgBlocks.Sandstone.Desert, b -> BlockGenerator.staticColumn(b, Resources.id("block/smooth_desert_sandstone")), SwgTags.Blocks.DESERT_SANDSTONE, assets);
 
-		BlockGenerator.stoneProducts(SwgBlocks.Sandstone.Desert, b -> BlockGenerator.staticColumn(b, Resources.id("block/smooth_desert_sandstone")), SwgTags.Block.DESERT_SANDSTONE, assets);
-
-		BlockGenerator.basic(SwgBlocks.Sandstone.SmoothDesert)
-		              .blockTag(SwgTags.Block.DESERT_SANDSTONE)
-		              .itemTag(SwgTags.Item.DESERT_SANDSTONE)
-		              .build(assets);
 		BlockGenerator.staticColumnTopBottom(SwgBlocks.Sandstone.Dunestone)
-		              .blockTag(SwgTags.Block.DESERT_SANDSTONE)
-		              .itemTag(SwgTags.Item.DESERT_SANDSTONE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Sandstone.PolishedDesert)
-		              .blockTag(SwgTags.Block.DESERT_SANDSTONE)
-		              .itemTag(SwgTags.Item.DESERT_SANDSTONE)
-		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Sandstone.ChiseledDesert)
-		              .blockTag(SwgTags.Block.DESERT_SANDSTONE)
-		              .itemTag(SwgTags.Item.DESERT_SANDSTONE)
+		              .blockTag(SwgTags.Blocks.DESERT_SANDSTONE)
+		              .itemTag(SwgTags.Items.DESERT_SANDSTONE)
 		              .build(assets);
 
 		BlockGenerator.basicRandomRotation(SwgBlocks.Salt.Caked)
@@ -1591,16 +1115,12 @@ public class PswgTarkin
 		BlockGenerator.wall(SwgBlocks.Stone.Massassi.wall, Resources.id("block/massassi_stone"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Stone.MassassiSmooth).build(assets);
 		BlockGenerator.verticalSlabUniqueDouble(SwgBlocks.Stone.MassassiSmoothSlab, Resources.id("block/smooth_massassi_stone_slab_double"), Resources.id("block/smooth_massassi_stone"), Resources.id("block/smooth_massassi_stone_slab_side"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 		BlockGenerator.basicStoneProducts(SwgBlocks.Stone.MassassiBricks, BlockTags.PICKAXE_MINEABLE, assets);
 		//BlockGenerator.basic(SwgBlocks.Stone.MassassiChiseledBricks).build(assets);
 
-		BlockGenerator.basic(SwgBlocks.Stone.MossyMassassiSmooth)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
 		BlockGenerator.verticalSlabUniqueDouble(SwgBlocks.Stone.MossyMassassiSmoothSlab, Resources.id("block/mossy_smooth_massassi_stone_slab_double"), Resources.id("block/mossy_smooth_massassi_stone"), Resources.id("block/mossy_smooth_massassi_stone_slab_side"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
@@ -1660,18 +1180,23 @@ public class PswgTarkin
 		BlockGenerator.wall(SwgBlocks.Stone.Ilum.wall, Resources.id("block/ilum_stone"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
-		BlockGenerator.basic(SwgBlocks.Stone.IlumSmooth)
-		              .blockTag(BlockTags.PICKAXE_MINEABLE)
-		              .build(assets);
 		BlockGenerator.verticalSlabUniqueDouble(SwgBlocks.Stone.IlumSmoothSlab, Resources.id("block/smooth_ilum_stone_slab_double"), Resources.id("block/smooth_ilum_stone"), Resources.id("block/smooth_ilum_stone_slab_side"))
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 		BlockGenerator.basicStoneProducts(SwgBlocks.Stone.IlumBricks, BlockTags.PICKAXE_MINEABLE, assets);
-		BlockGenerator.basic(SwgBlocks.Stone.IlumChiseledBricks)
+
+		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Tank.FusionFuel)
+		              .blockTag(BlockTags.PICKAXE_MINEABLE)
+		              .build(assets);
+		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Tank.StarshipFuel)
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 
-		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Tank.Fusion)
+		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Scaffold.Scaffold)
+		              .blockTag(BlockTags.PICKAXE_MINEABLE)
+		              .build(assets);
+
+		BlockGenerator.blockNoModelDefaultDrops(SwgBlocks.Scaffold.ScaffoldStairs)
 		              .blockTag(BlockTags.PICKAXE_MINEABLE)
 		              .build(assets);
 
@@ -1710,5 +1235,63 @@ public class PswgTarkin
 		generateRecipes(assets);
 		generateTags(assets);
 		generateLangEntries(assets);
+	}
+
+	public static void generateSpeciesLang(List<BuiltAsset> assets, LanguageBuilder lang, String namespace)
+	{
+		var speciesLangBase = lang.entry("species").modid();
+
+		speciesLangBase.dot(SpeciesVariable.NONE).build(assets);
+
+		for (var factory : SwgSpeciesRegistry.getFactories())
+		{
+			var species = factory.apply(null);
+
+			if (!species.getSlug().getNamespace().equals(namespace))
+				continue;
+
+			for (var lore : SwgSpeciesLore.values())
+				lang.entry(lore.createLanguageKey(species.getSlug())).build(assets);
+
+			speciesLangBase.dot(species.getSlug().getPath()).build(assets);
+
+			for (var variable : species.getVariables())
+			{
+				lang.entry(variable.getTranslationKey()).build(assets);
+
+				for (var value : variable.getPossibleValues())
+					lang.entry(variable.getTranslationFor(value)).build(assets);
+			}
+		}
+	}
+
+	public static void generateBlasterLang(List<BuiltAsset> assets, LanguageBuilder lang, String namespace)
+	{
+		var blasterData = PswgContent.getBlasterPresets();
+
+		for (var blasterEntry : blasterData.entrySet())
+		{
+			var blasterId = blasterEntry.getKey();
+			if (!blasterId.getNamespace().equals(namespace))
+				continue;
+
+			var blasterDescriptor = blasterEntry.getValue();
+
+			lang.entry(BlasterItem.getTranslationKeyForModel(blasterId)).build(assets);
+
+			for (var attachment : blasterDescriptor.attachmentMap.values())
+				lang.entry(((TranslatableTextContent)BlasterItem.getAttachmentTranslation(blasterId, attachment).getContent()).getKey()).build(assets);
+		}
+
+		for (var value : BlasterArchetype.values())
+			lang.entry(value.getLangKey()).build(assets);
+	}
+
+	public static void generateConfigLang(List<BuiltAsset> assets, LanguageBuilder lang, Class<Config> config)
+	{
+		var autoconfig = lang.entry("text").dot("autoconfig").modid();
+		autoconfig.dot("title").build(assets);
+		var autoconfigOption = autoconfig.dot("option");
+		Tarkin.generateLangFromConfigAnnotations(autoconfigOption, assets, config);
 	}
 }

@@ -28,10 +28,10 @@
 			"com.parzivail.pswg.BaseContent"
 		],
 		"pswg-client-addon": [
-			"com.parzivail.pswg.BaseContent"
+			"com.parzivail.pswg.BaseClientContent"
 		],
 		"cardinal-components-entity": [
-			"com.parzivail.pswg.component.SwgEntityComponents"
+			"com.parzivail.pswg.component.PlayerData"
 		],
 		"modmenu": [
 			"com.parzivail.pswg.compat.modmenu.GalaxiesModMenuIntegration"
@@ -48,15 +48,19 @@
 	},
 	"accessWidener": "pswg.accesswidener",
 	"mixins": [
-		"pswg.mixins.json"
+		"pswg.mixins.json",
+		"blasters.mixins.json",
+		"debug.mixins.json",
+		"errorman.mixins.json",
+		"nem.mixins.json"
 	],
 	"depends": {
 		"cardinal-components-base": "*",
 		"cardinal-components-entity": "*",
 		"cloth-config2": "*",
-		"fabric-api": ">=0.59.0",
-		"fabricloader": ">=0.14.8",
-		"minecraft": "~1.19",
+		"fabric-api": ">=0.76.0",
+		"fabricloader": ">=0.14.18",
+		"minecraft": "1.19.4",
 		"trinkets": "*"
 	},
 	"breaks": {
@@ -67,8 +71,9 @@
 	},
 	"custom": {
 		"cardinal-components": [
-			"pswg:persistent",
-			"pswg:volatile"
+			"pswg:per_pub",
+			"pswg:vol_pub",
+			"pswg:vol_prv"
 		],
 		"modmenu": {
 			"links": {

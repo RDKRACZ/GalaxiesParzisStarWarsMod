@@ -3,8 +3,7 @@ package com.parzivail.pswg.client.render.block;
 import com.parzivail.pswg.blockentity.PowerCouplingBlockEntity;
 import com.parzivail.pswg.container.SwgBlocks;
 import com.parzivail.util.block.rotating.WaterloggableRotatingBlock;
-import com.parzivail.util.client.math.ClientMathUtil;
-import com.parzivail.util.math.Matrix4fUtil;
+import com.parzivail.util.math.MathUtil;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -14,10 +13,10 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
+import org.joml.Matrix4f;
 
 public class PowerCouplingCableRenderer implements BlockEntityRenderer<PowerCouplingBlockEntity>
 {
@@ -40,8 +39,8 @@ public class PowerCouplingCableRenderer implements BlockEntityRenderer<PowerCoup
 
 		var offsetMatrices = new MatrixStack();
 		var rotation = state.get(WaterloggableRotatingBlock.FACING);
-		offsetMatrices.multiply(ClientMathUtil.getRotation(rotation));
-		var offset = Matrix4fUtil.transform(new Vec3d(-5 / 16f, 0, 0), offsetMatrices.peek().getPositionMatrix());
+		offsetMatrices.multiply(MathUtil.getRotation(rotation));
+		var offset = MathUtil.transform(new Vec3d(-5 / 16f, 0, 0), offsetMatrices.peek().getPositionMatrix());
 
 		matrices.translate(0.5, 0.5, 0.5);
 		matrices.translate(offset.x, offset.y, offset.z);
@@ -61,8 +60,8 @@ public class PowerCouplingCableRenderer implements BlockEntityRenderer<PowerCoup
 
 			var destOffsetMatrices = new MatrixStack();
 			var destRotation = targetState.get(WaterloggableRotatingBlock.FACING);
-			destOffsetMatrices.multiply(ClientMathUtil.getRotation(destRotation));
-			var destOffset = Matrix4fUtil.transform(new Vec3d(-5 / 16f, 0, 0), destOffsetMatrices.peek().getPositionMatrix());
+			destOffsetMatrices.multiply(MathUtil.getRotation(destRotation));
+			var destOffset = MathUtil.transform(new Vec3d(-5 / 16f, 0, 0), destOffsetMatrices.peek().getPositionMatrix());
 
 			renderCable(world, i, srcVec3, destVec3.add(destOffset), tickDelta, matrices, vertexConsumers);
 			i++;
@@ -80,11 +79,11 @@ public class PowerCouplingCableRenderer implements BlockEntityRenderer<PowerCoup
 		var size = 0.04f;
 		var vertexConsumer = provider.getBuffer(RenderLayer.getLeash());
 		var matrix4f = matrices.peek().getPositionMatrix();
-		var n = MathHelper.fastInverseSqrt(dX * dX + dZ * dZ) * size / 2.0F;
+		var n = MathHelper.inverseSqrt(dX * dX + dZ * dZ) * size / 2.0F;
 		var o = dZ * n;
 		var p = dX * n;
-		var srcPos = new BlockPos(source);
-		var dstPos = new BlockPos(dest);
+		var srcPos = new BlockPos(MathUtil.floorInt(source));
+		var dstPos = new BlockPos(MathUtil.floorInt(dest));
 		int srcBlockLight = world.getLightLevel(LightType.BLOCK, srcPos);
 		int dstBlockLight = world.getLightLevel(LightType.BLOCK, dstPos);
 		int srcSkyLight = world.getLightLevel(LightType.SKY, srcPos);

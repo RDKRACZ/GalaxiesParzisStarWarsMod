@@ -3,7 +3,6 @@ package com.parzivail.pswg.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
 
@@ -14,18 +13,9 @@ public class BlasterIonBoltEntity extends BlasterBoltEntity
 		super(type, world);
 	}
 
-	public BlasterIonBoltEntity(EntityType<? extends BlasterIonBoltEntity> type, LivingEntity owner, World world)
+	public BlasterIonBoltEntity(EntityType<? extends BlasterIonBoltEntity> type, LivingEntity owner, World world, boolean ignoreWater)
 	{
-		super(type, owner, world);
-	}
-
-	@Override
-	public void tick()
-	{
-		super.tick();
-
-		var pos = this.getPos();
-		this.world.addParticle(ParticleTypes.EFFECT, pos.x, pos.y + this.getHeight() / 2, pos.z, 0, 0, 0);
+		super(type, owner, world, ignoreWater);
 	}
 
 	@Override
@@ -40,5 +30,17 @@ public class BlasterIonBoltEntity extends BlasterBoltEntity
 		// TODO: electrical effects
 
 		this.discard();
+	}
+
+	@Override
+	protected boolean deflect(LivingEntity entity)
+	{
+		return false;
+	}
+
+	@Override
+	protected boolean shouldDestroyBlocks()
+	{
+		return false;
 	}
 }

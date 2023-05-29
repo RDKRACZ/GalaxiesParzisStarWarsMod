@@ -1,0 +1,36 @@
+package com.parzivail.mara.lexing;
+
+public enum TokenizeState
+{
+	Begin,
+	NumericLiteral,
+	DecimalLiteral,
+	FloatingPointLiteral,
+	FloatingPointExponentStart,
+	FloatingPointExponentLiteral,
+	BinaryLiteral,
+	OctalLiteral,
+	HexLiteral,
+	Percent,
+	Greater,
+	Less,
+	Bang,
+	Assign,
+	Amp,
+	Pipe,
+	Question,
+	Slash,
+	Plus,
+	Minus,
+	Dot,
+	LineComment,
+	CharacterLiteral,
+	StringLiteral,
+	StringEscape,
+	StringUnicodeEscape,
+	Identifier,
+	End,
+	EndIfTerminated,
+	EmitEof,
+	Eof
+}

@@ -7,9 +7,12 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import org.joml.Quaternionf;
 
 public class SpeederEntity extends ShipEntity
 {
@@ -27,13 +30,7 @@ public class SpeederEntity extends ShipEntity
 
 	protected double getRepulsorSetpoint()
 	{
-		return -0.4;
-	}
-
-	@Override
-	protected int getMaxPassengers()
-	{
-		return 2;
+		return 0;
 	}
 
 	@Override
@@ -53,7 +50,7 @@ public class SpeederEntity extends ShipEntity
 	{
 		super.tick();
 
-		var pilot = getPrimaryPassenger();
+		var pilot = getControllingPassenger();
 		if (pilot instanceof PlayerEntity pe)
 		{
 			if (pe.sidewaysSpeed > 0)
@@ -62,16 +59,16 @@ public class SpeederEntity extends ShipEntity
 				yawVelocity -= 1.75f;
 		}
 
-		var rotation = new Quaternion(getRotation());
+		var rotation = new Quaternionf(getRotation());
 
-		var v = QuatUtil.project(com.parzivail.util.math.MathUtil.POSY, rotation);
-		rotation.hamiltonProduct(new Quaternion(new Vec3f(v), yawVelocity, true));
+		var v = QuatUtil.project(MathUtil.V3D_POS_Y, rotation);
+		rotation.rotateAxis(MathUtil.toRadians(yawVelocity), v.toVector3f());
 
 		setRotation(rotation);
 
 		if (world.isClient)
 		{
-			clientInstRotation = new Quaternion(rotation);
+			clientInstRotation = new Quaternionf(rotation);
 		}
 
 		for (var p : getPassengerList())
@@ -111,10 +108,10 @@ public class SpeederEntity extends ShipEntity
 			{
 				var pos = start.add(left.multiply(x * spacingSideways)).add(forward.multiply(z * spacingForward * 3)).add(0, range, 0);
 
-				if (!world.isAir(new BlockPos(pos)))
+				if (!world.isAir(new BlockPos(MathUtil.floorInt(pos))))
 					continue;
 
-				var blockHit = EntityUtil.raycastBlocks(pos, MathUtil.NEGY, range * 2, this, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.SOURCE_ONLY);
+				var blockHit = EntityUtil.raycastBlocks(pos, MathUtil.V3D_NEG_Y, range * 2, this, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.SOURCE_ONLY);
 				var blockDistance = blockHit.getType() == HitResult.Type.MISS ? -range : (blockHit.getPos().y - start.y);
 
 				if (blockDistance > d)
@@ -135,17 +132,9 @@ public class SpeederEntity extends ShipEntity
 	}
 
 	@Override
-	public Vec3d getPassengerSocket(int passengerIndex)
-	{
-		if (passengerIndex > 0)
-			return new Vec3d(0.5f, 0.1f, 1.25f);
-		return new Vec3d(-0.5f, 0.1f, 1.25f);
-	}
-
-	@Override
 	protected Vec3d getThrottleVelocity(float throttle)
 	{
-		var d = QuatUtil.rotate(MathUtil.NEGZ, getRotation());
+		var d = QuatUtil.rotate(MathUtil.V3D_NEG_Z, getRotation());
 		d = new Vec3d(d.x, 0.02f, d.z);
 		return d.multiply(throttle / 2);
 	}

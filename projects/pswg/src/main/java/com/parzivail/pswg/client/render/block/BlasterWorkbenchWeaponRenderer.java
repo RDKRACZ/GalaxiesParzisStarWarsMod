@@ -1,17 +1,17 @@
 package com.parzivail.pswg.client.render.block;
 
-import com.parzivail.pswg.blockentity.BlasterWorkbenchBlockEntity;
-import com.parzivail.pswg.client.render.item.BlasterItemRenderer;
 import com.parzivail.pswg.container.SwgBlocks;
-import com.parzivail.pswg.item.blaster.BlasterItem;
-import com.parzivail.pswg.item.blaster.data.BlasterArchetype;
+import com.parzivail.pswg.features.blasters.BlasterItem;
+import com.parzivail.pswg.features.blasters.client.BlasterItemRenderer;
+import com.parzivail.pswg.features.blasters.data.BlasterArchetype;
+import com.parzivail.pswg.features.blasters.workbench.BlasterWorkbenchBlockEntity;
 import com.parzivail.util.block.rotating.WaterloggableRotatingBlock;
-import com.parzivail.util.client.math.ClientMathUtil;
+import com.parzivail.util.math.MathUtil;
 import com.parzivail.util.math.QuatUtil;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class BlasterWorkbenchWeaponRenderer implements BlockEntityRenderer<BlasterWorkbenchBlockEntity>
@@ -41,7 +41,7 @@ public class BlasterWorkbenchWeaponRenderer implements BlockEntityRenderer<Blast
 		var rotation = state.get(WaterloggableRotatingBlock.FACING);
 
 		matrices.translate(0.5, 0, 0.5);
-		matrices.multiply(ClientMathUtil.getRotation(rotation));
+		matrices.multiply(MathUtil.getRotation(rotation));
 
 		var desc = BlasterItem.getBlasterDescriptor(blaster);
 
@@ -54,7 +54,7 @@ public class BlasterWorkbenchWeaponRenderer implements BlockEntityRenderer<Blast
 		matrices.multiply(QuatUtil.ROT_Y_POS10);
 		matrices.multiply(QuatUtil.ROT_Z_POS80);
 
-		BlasterItemRenderer.INSTANCE.render(blaster, ModelTransformation.Mode.NONE, false, matrices, vertexConsumers, light, overlay, null);
+		BlasterItemRenderer.INSTANCE.render(null, blaster, ModelTransformationMode.NONE, false, matrices, vertexConsumers, light, overlay, null);
 
 		matrices.pop();
 	}

@@ -1,6 +1,6 @@
 package com.parzivail.util.math;
 
-import net.minecraft.util.math.Vec3f;
+import org.joml.Vector3f;
 
 public class ColorUtil
 {
@@ -34,6 +34,14 @@ public class ColorUtil
 		                (int)(a * 255));
 	}
 
+	public static int packHsv(final float h, final float s, final float v)
+	{
+		return packArgb((int)(h * 255),
+		                (int)(s * 255),
+		                (int)(v * 255),
+		                0);
+	}
+
 	public static int hsvToRgbInt(final float hue, final float saturation, final float value)
 	{
 		final var normalizedHue = (hue - (float)Math.floor(hue));
@@ -55,7 +63,7 @@ public class ColorUtil
 				};
 	}
 
-	public static Vec3f hsvToRgb(final float hue, final float saturation, final float value)
+	public static Vector3f hsvToRgb(final float hue, final float saturation, final float value)
 	{
 		final var normalizedHue = (hue - (float)Math.floor(hue));
 		final var h = (int)(normalizedHue * 6);
@@ -66,18 +74,48 @@ public class ColorUtil
 
 		return switch (h)
 				{
-					case 0 -> new Vec3f(value, t, p);
-					case 1 -> new Vec3f(q, value, p);
-					case 2 -> new Vec3f(p, value, t);
-					case 3 -> new Vec3f(p, q, value);
-					case 4 -> new Vec3f(t, p, value);
-					case 5 -> new Vec3f(value, p, q);
-					default -> new Vec3f(0, 0, 0);
+					case 0 -> new Vector3f(value, t, p);
+					case 1 -> new Vector3f(q, value, p);
+					case 2 -> new Vector3f(p, value, t);
+					case 3 -> new Vector3f(p, q, value);
+					case 4 -> new Vector3f(t, p, value);
+					case 5 -> new Vector3f(value, p, q);
+					default -> new Vector3f(0, 0, 0);
 				};
 	}
 
 	public static String toResourceId(int color)
 	{
 		return String.format("%06x", color & 0xFFFFFF);
+	}
+
+	public static float argbGetAf(int color)
+	{
+		return ((color & 0xFF000000) >> 24) / 255f;
+	}
+
+	public static float argbGetRf(int color)
+	{
+		return ((color & 0xFF0000) >> 16) / 255f;
+	}
+
+	public static float argbGetGf(int color)
+	{
+		return ((color & 0xFF00) >> 8) / 255f;
+	}
+
+	public static float hsvGetH(int color)
+	{
+		return ((color & 0xFF0000) >> 16) / 255f;
+	}
+
+	public static float hsvGetS(int color)
+	{
+		return ((color & 0xFF00) >> 8) / 255f;
+	}
+
+	public static float hsvGetV(int color)
+	{
+		return (color & 0xFF) / 255f;
 	}
 }

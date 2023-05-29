@@ -16,16 +16,17 @@ public class SwgPackets
 		public static final Identifier ShipRotation = Resources.id("srot");
 		public static final Identifier ShipControls = Resources.id("sctrl");
 		public static final Identifier JetpackControls = Resources.id("jctrl");
+		public static final Identifier TogglePatrolPosture = Resources.id("toggle_patrol_posture");
 	}
 
 	public static class S2C
 	{
-		public static final Identifier SyncSpecies = Resources.id("sync_species");
-		public static final Identifier PlayerEvent = Resources.id("pevt");
-		public static final Identifier WorldEvent = Resources.id("wevt");
 		public static final Identifier SyncBlockToClient = Resources.id("csync");
 		public static final Identifier PreciseEntityVelocityUpdate = Resources.id("pevel");
 		public static final Identifier PreciseEntitySpawn = Resources.id("pesp");
 		public static final Identifier OpenEntityInventory = Resources.id("entity_inventory");
+		public static final Identifier AccumulateRecoil = Resources.id("recoil");
+		public static final Identifier BlasterHit = Resources.id("blaster_hit");
+		public static final Identifier PlayerSocketPyro = Resources.id("player_sparks");
 	}
 }

@@ -7,7 +7,7 @@ import net.minecraft.entity.ai.pathing.PathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.tag.BlockTags;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -23,7 +23,7 @@ public class SlowTurningMoveControl extends MoveControl
 		this.maxYawRate = maxYawRate;
 	}
 
-	private boolean method_25946(float f, float g)
+	private boolean isPathWalkable(float dX, float dZ)
 	{
 		EntityNavigation entityNavigation = this.entity.getNavigation();
 		if (entityNavigation != null)
@@ -32,9 +32,9 @@ public class SlowTurningMoveControl extends MoveControl
 			return pathNodeMaker == null
 			       || pathNodeMaker.getDefaultNodeType(
 					this.entity.world,
-					MathHelper.floor(this.entity.getX() + (double)f),
+					MathHelper.floor(this.entity.getX() + (double)dX),
 					this.entity.getBlockY(),
-					MathHelper.floor(this.entity.getZ() + (double)g)
+					MathHelper.floor(this.entity.getZ() + (double)dZ)
 			) == PathNodeType.WALKABLE;
 		}
 
@@ -63,7 +63,7 @@ public class SlowTurningMoveControl extends MoveControl
 			float l = MathHelper.cos(this.entity.getYaw() * (float)(Math.PI / 180.0));
 			float m = h * l - i * k;
 			float n = i * l + h * k;
-			if (!this.method_25946(m, n))
+			if (!this.isPathWalkable(m, n))
 			{
 				this.forwardMovement = 1.0F;
 				this.sidewaysMovement = 0.0F;
@@ -95,7 +95,7 @@ public class SlowTurningMoveControl extends MoveControl
 			BlockPos blockPos = this.entity.getBlockPos();
 			BlockState blockState = this.entity.world.getBlockState(blockPos);
 			VoxelShape voxelShape = blockState.getCollisionShape(this.entity.world, blockPos);
-			if (j > (double)this.entity.stepHeight && f * f + h * h < (double)Math.max(1.0F, this.entity.getWidth())
+			if (j > (double)this.entity.getStepHeight() && f * f + h * h < (double)Math.max(1.0F, this.entity.getWidth())
 			    || !voxelShape.isEmpty()
 			       && this.entity.getY() < voxelShape.getMax(Direction.Axis.Y) + (double)blockPos.getY()
 			       && !blockState.isIn(BlockTags.DOORS)

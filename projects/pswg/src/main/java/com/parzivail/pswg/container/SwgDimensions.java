@@ -1,9 +1,18 @@
 package com.parzivail.pswg.container;
 
-import com.parzivail.util.Consumers;
+import com.parzivail.pswg.Resources;
+import com.parzivail.util.gen.biome.TerrainBiomes;
+import com.parzivail.util.gen.mc.GalaxiesBiomeSource;
+import com.parzivail.util.gen.mc.GalaxiesChunkGenerator;
+import com.parzivail.util.generics.Consumers;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.GenerationSettings;
 import net.minecraft.world.biome.SpawnSettings;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Consumer;
 
@@ -12,11 +21,42 @@ public class SwgDimensions
 	private static final Consumer<SpawnSettings.Builder> SPAWN_NONE = Consumers::noop;
 	private static final Consumer<GenerationSettings.Builder> GEN_NONE = Consumers::noop;
 
+	public static final RegistryKey<DimensionType> TATOOINE = RegistryKey.of(RegistryKeys.DIMENSION_TYPE, Resources.id("tatooine"));
+
 	private static int getSkyColor(float temperature)
 	{
 		var f = temperature / 3.0F;
 		f = MathHelper.clamp(f, -1.0F, 1.0F);
 		return MathHelper.hsvToRgb(0.62222224F - f * 0.05F, 0.5F + f * 0.1F, 1.0F);
+	}
+
+	public static void register() {
+		Registry.register(Registries.BIOME_SOURCE, Resources.id("galaxies"), GalaxiesBiomeSource.CODEC);
+		Registry.register(Registries.CHUNK_GENERATOR, Resources.id("galaxies"), GalaxiesChunkGenerator.CODEC);
+
+//		Registry.register(
+//				Registries.,
+//				TATOOINE,
+//				new DimensionType(
+//						/*fixedTime = */ OptionalLong.empty(),
+//						/*hasSkyLight = */ true,
+//						/*hasCeiling = */ false,
+//						/*ultraWarm = */ false,
+//						/*natural = */ false,
+//						/*coordinateScale = */ 1.0,
+//						/*bedWorks = */ true,
+//						/*respawnAnchorWorks = */ false,
+//						/*minY = */ -64,
+//						/*height = */ 384,
+//						/*logicalHeight = */ 384,
+//						/*infiniburn = */ BlockTags.INFINIBURN_OVERWORLD,
+//						/*effectsLocation = */ TATOOINE.getValue(),
+//						/*ambientLight = */ 0.0F,
+//						/*monsterSettings = */ new DimensionType.MonsterSettings(false, true, UniformIntProvider.create(0, 7), 0)
+//				)
+//		);
+
+		TerrainBiomes.init();
 	}
 
 //	public static class Tatooine

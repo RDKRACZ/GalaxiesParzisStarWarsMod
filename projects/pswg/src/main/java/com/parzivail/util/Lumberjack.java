@@ -8,12 +8,17 @@ import org.slf4j.LoggerFactory;
 public class Lumberjack
 {
 	private final Logger logger;
-	private final boolean forceDebugLog;
+	public final boolean forceDebugLog;
 
 	public Lumberjack(String header)
 	{
 		logger = LoggerFactory.getLogger(header);
 		forceDebugLog = Boolean.parseBoolean(System.getProperty("pswg.debug", "false"));
+	}
+
+	public Logger getLogger()
+	{
+		return logger;
 	}
 
 	/**

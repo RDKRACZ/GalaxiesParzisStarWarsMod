@@ -1,24 +1,19 @@
 package com.parzivail.pswg.client.render.entity;
 
 import com.parzivail.pswg.Resources;
-import com.parzivail.pswg.container.SwgItems;
-import com.parzivail.pswg.entity.ThrownLightsaberEntity;
-import net.minecraft.client.render.OverlayTexture;
+import com.parzivail.pswg.features.lightsabers.client.ThrownLightsaberEntity;
+import com.parzivail.util.math.MathUtil;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Quaternion;
+import org.joml.Quaternionf;
 
 public class ThrownLightsaberRenderer extends EntityRenderer<ThrownLightsaberEntity>
 {
 	private final ItemRenderer itemRenderer;
-
-	private final ItemStack stack = new ItemStack(SwgItems.Lightsaber.Lightsaber);
 
 	public ThrownLightsaberRenderer(EntityRendererFactory.Context ctx)
 	{
@@ -47,16 +42,17 @@ public class ThrownLightsaberRenderer extends EntityRenderer<ThrownLightsaberEnt
 		var bYaw = (float)Math.atan2(velocity.x, velocity.z);
 		var bPitch = (float)Math.asin(velocity.y);
 
-		matrices.multiply(new Quaternion(0, bYaw, 0, false));
-		matrices.multiply(new Quaternion((float)(Math.PI / 2) - bPitch, 0, 0, false));
+		matrices.multiply(new Quaternionf().rotationY(bYaw));
+		matrices.multiply(new Quaternionf().rotationX((float)(Math.PI / 2) - bPitch));
 
-		matrices.multiply(new Quaternion(0, 0, -(entity.age + tickDelta) * 31, true));
+		matrices.multiply(new Quaternionf().rotationZ(MathUtil.toRadians(-(entity.age + tickDelta) * 31)));
 
-		var lt = entity.getLightsaberData();
-		lt.active = true;
-		lt.serializeAsSubtag(stack);
-
-		this.itemRenderer.renderItem(stack, ModelTransformation.Mode.NONE, light, OverlayTexture.DEFAULT_UV, matrices, consumerProvider, 0);
+		// TODO
+		//		var lt = entity.getLightsaberData();
+		//		lt.active = true;
+		//		lt.serializeAsSubtag(stack);
+		//
+		//		this.itemRenderer.renderItem(stack, ModelTransformationMode.NONE, light, OverlayTexture.DEFAULT_UV, matrices, consumerProvider, entity.world, 0);
 
 		matrices.pop();
 	}

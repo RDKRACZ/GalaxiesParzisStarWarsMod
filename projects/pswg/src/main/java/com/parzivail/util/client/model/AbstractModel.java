@@ -16,60 +16,73 @@
 
 package com.parzivail.util.client.model;
 
+import com.parzivail.pswg.Galaxies;
+import com.parzivail.util.client.model.compat.FrapiCompat;
+import com.parzivail.util.client.model.compat.IndiumCompat;
+import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
 import net.fabricmc.fabric.api.renderer.v1.material.MaterialFinder;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
-import net.fabricmc.fabric.impl.client.indigo.renderer.RenderMaterialImpl;
-import net.fabricmc.fabric.impl.client.indigo.renderer.mesh.MeshBuilderImpl;
+import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
 
+import java.util.Optional;
+
 public abstract class AbstractModel implements BakedModel, FabricBakedModel
 {
-	public static final RenderMaterial MAT_DIFFUSE_OPAQUE;
-	public static final RenderMaterial MAT_DIFFUSE_CUTOUT;
-	public static final RenderMaterial MAT_DIFFUSE_TRANSLUCENT;
-	public static final RenderMaterial MAT_EMISSIVE;
+	private static MaterialFinder MATERIAL_FINDER;
+
+	public static RenderMaterial MAT_DIFFUSE_OPAQUE;
+	public static RenderMaterial MAT_DIFFUSE_CUTOUT;
+	public static RenderMaterial MAT_DIFFUSE_TRANSLUCENT;
+	public static RenderMaterial MAT_EMISSIVE;
 
 	protected final Sprite modelSprite;
 	protected final ModelTransformation transformation;
-
-	static
-	{
-		var materialFinder = createMaterialFinder();
-
-		MAT_DIFFUSE_OPAQUE = materialFinder.find();
-		MAT_DIFFUSE_CUTOUT = materialFinder.blendMode(0, BlendMode.CUTOUT_MIPPED).find();
-		MAT_DIFFUSE_TRANSLUCENT = materialFinder.blendMode(0, BlendMode.TRANSLUCENT).find();
-		MAT_EMISSIVE = materialFinder.emissive(0, true).disableAo(0, true).disableDiffuse(0, true).find();
-	}
 
 	protected AbstractModel(Sprite sprite, ModelTransformation transformation)
 	{
 		modelSprite = sprite;
 		this.transformation = transformation;
+
+		if (MATERIAL_FINDER == null)
+		{
+			MATERIAL_FINDER = createMaterialFinder();
+
+			MAT_DIFFUSE_OPAQUE = MATERIAL_FINDER.find();
+			MAT_DIFFUSE_CUTOUT = MATERIAL_FINDER.blendMode(BlendMode.CUTOUT_MIPPED).find();
+			MAT_DIFFUSE_TRANSLUCENT = MATERIAL_FINDER.blendMode(BlendMode.TRANSLUCENT).find();
+			MAT_EMISSIVE = MATERIAL_FINDER.emissive(true).ambientOcclusion(TriState.FALSE).disableDiffuse(true).find();
+		}
 	}
 
 	protected static MaterialFinder createMaterialFinder()
 	{
-		var renderer = RendererAccess.INSTANCE.getRenderer();
-		if (renderer == null)
-			return new RenderMaterialImpl.Finder();
-		else
-			return renderer.materialFinder();
+		return Optional
+				.ofNullable(RendererAccess.INSTANCE.getRenderer()).map(Renderer::materialFinder)
+				.or(IndiumCompat::getMaterialFinder)
+				.or(() -> {
+					Galaxies.LOG.warn("No MaterialFinder found in Fabric API or Indium!");
+					return FrapiCompat.getMaterialFinder82();
+				})
+				.orElseThrow(() -> new RuntimeException("No MaterialFinder found in Fabric API, Indium, or Fabric (impl)!"));
 	}
 
 	protected static MeshBuilder createMeshBuilder()
 	{
-		var renderer = RendererAccess.INSTANCE.getRenderer();
-		if (renderer == null)
-			return new MeshBuilderImpl();
-		else
-			return renderer.meshBuilder();
+		return Optional
+				.ofNullable(RendererAccess.INSTANCE.getRenderer()).map(Renderer::meshBuilder)
+				.or(IndiumCompat::getMeshBuilder)
+				.or(() -> {
+					Galaxies.LOG.warn("No MeshBuilder found in Fabric API or Indium!");
+					return FrapiCompat.getMeshBuilder();
+				})
+				.orElseThrow(() -> new RuntimeException("No MeshBuilder found in Fabric API, Indium, or Fabric (impl)!"));
 	}
 
 	@Override

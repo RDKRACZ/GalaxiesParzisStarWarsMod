@@ -3,10 +3,11 @@ package com.parzivail.pswg.client.render.player;
 import com.parzivail.pswg.character.SpeciesGender;
 import com.parzivail.pswg.character.SwgSpecies;
 import com.parzivail.pswg.client.render.armor.ArmorRenderer;
-import com.parzivail.pswg.component.SwgEntityComponents;
+import com.parzivail.pswg.component.PlayerData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -14,6 +15,7 @@ import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -23,10 +25,10 @@ public class PlayerSpeciesModelRenderer extends PlayerEntityRenderer
 	@FunctionalInterface
 	public interface Animator
 	{
-		void animateModel(AbstractClientPlayerEntity entity, PlayerEntityModel<AbstractClientPlayerEntity> model, PlayerSpeciesModelRenderer renderer, float tickDelta);
+		void animateModel(SwgSpecies species, AbstractClientPlayerEntity entity, PlayerEntityModel<AbstractClientPlayerEntity> model, PlayerSpeciesModelRenderer renderer, float tickDelta);
 	}
 
-	private final Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> modelSupplier;
+	private Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> modelSupplier;
 	private final Animator animator;
 
 	private SwgSpecies overrideSpecies;
@@ -46,7 +48,10 @@ public class PlayerSpeciesModelRenderer extends PlayerEntityRenderer
 		// when the pose is set, before this.model is
 		// used directly
 		if (modelSupplier != null)
+		{
 			this.model = modelSupplier.get();
+			this.modelSupplier = null;
+		}
 		return super.getModel();
 	}
 
@@ -62,15 +67,72 @@ public class PlayerSpeciesModelRenderer extends PlayerEntityRenderer
 	@Override
 	public void render(AbstractClientPlayerEntity player, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light)
 	{
-		if (animator != null)
-			animator.animateModel(player, model, this, tickDelta);
+		var species = getSpecies(player);
 
-		setGenderSpecificCubes(player);
+		if (animator != null)
+			animator.animateModel(species, player, model, this, tickDelta);
+
+		transformChestCube(player);
+		transformHairCube(species, player);
 
 		super.render(player, yaw, tickDelta, matrices, vertexConsumerProvider, light);
 	}
 
-	private void setGenderSpecificCubes(AbstractClientPlayerEntity player)
+	@Nullable
+	@Override
+	protected RenderLayer getRenderLayer(AbstractClientPlayerEntity entity, boolean showBody, boolean translucent, boolean showOutline)
+	{
+		Identifier identifier = this.getTexture(entity);
+		if (translucent)
+			return RenderLayer.getItemEntityTranslucentCull(identifier);
+		else if (showBody)
+			return RenderLayer.getEntityTranslucentCull(identifier);
+		else
+			return showOutline ? RenderLayer.getOutline(identifier) : null;
+	}
+
+	private SwgSpecies getSpecies(AbstractClientPlayerEntity player)
+	{
+		var species = overrideSpecies;
+		if (species == null)
+		{
+			var components = PlayerData.getPersistentPublic(player);
+			species = components.getCharacter();
+		}
+		return species;
+	}
+
+	private void transformHairCube(SwgSpecies species, AbstractClientPlayerEntity player)
+	{
+		if (species == null)
+			return;
+
+		var model = getModel();
+
+		var cubeVisible = true;
+
+		var armorPair = ArmorRenderer.getModArmor(player, EquipmentSlot.HEAD);
+		if (armorPair != null)
+		{
+			var metadata = ArmorRenderer.getMetadata(armorPair.getLeft());
+			cubeVisible = metadata.hairAction() == ArmorRenderer.CubeAction.KEEP;
+		}
+		else
+		{
+			var vanillaArmor = ArmorRenderer.getVanillaArmor(player, EquipmentSlot.HEAD);
+			if (vanillaArmor != null)
+			{
+				// TODO: How should vanilla armor be handled?
+			}
+		}
+
+		model.hat.visible = cubeVisible;
+
+		if (model.head.hasChild("hair"))
+			model.head.getChild("hair").visible = cubeVisible;
+	}
+
+	private void transformChestCube(AbstractClientPlayerEntity player)
 	{
 		var model = getModel();
 
@@ -80,12 +142,11 @@ public class PlayerSpeciesModelRenderer extends PlayerEntityRenderer
 		var species = overrideSpecies;
 		if (species == null)
 		{
-			var components = SwgEntityComponents.getPersistent(player);
-			species = components.getSpecies();
+			var components = PlayerData.getPersistentPublic(player);
+			species = components.getCharacter();
 			if (species == null)
 				return;
 		}
-
 
 		var chest = model.body.getChild("chest");
 		if (chest == null)

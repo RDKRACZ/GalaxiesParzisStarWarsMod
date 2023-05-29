@@ -5,45 +5,41 @@ import com.parzivail.pswg.Client;
 import com.parzivail.pswg.Resources;
 import com.parzivail.pswg.character.SpeciesGender;
 import com.parzivail.pswg.character.SwgSpecies;
-import com.parzivail.pswg.client.loader.NemManager;
 import com.parzivail.pswg.client.render.player.PlayerSpeciesModelRenderer;
-import com.parzivail.pswg.container.SwgSpeciesRegistry;
-import com.parzivail.util.math.MathUtil;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 
 import java.util.HashMap;
 import java.util.function.Supplier;
 
 public class SwgSpeciesRenderer
 {
+	public static final Identifier HUMANOID_BASE_MODEL_ID = Resources.id("species/humanoid_base");
+
 	public static final HashMap<Identifier, SwgSpeciesModel> MODELS = new HashMap<>();
 
-	static
+	//		register(SwgSpeciesRegistry.SPECIES_KAMINOAN, new ModelKaminoan<>(true, 0), new ModelKaminoan<>(false, 0));
+	//		register(new SwgSpeciesModel(SwgSpeciesRegistry.SPECIES_WOOKIEE_M, new ModelWookiee<>(true, 0)));
+	//		register(new SwgSpeciesModel(SwgSpeciesRegistry.SPECIES_WOOKIEE_F, new ModelWookiee<>(false, 0)));
+	//		register(SwgSpeciesRegistry.SPECIES_BOTHAN, EMPTY_MODEL);
+
+	public static Supplier<BipedEntityModel<LivingEntity>> getHumanModel()
 	{
-		//		register(SwgSpeciesRegistry.SPECIES_KAMINOAN, new ModelKaminoan<>(true, 0), new ModelKaminoan<>(false, 0));
-		//		register(new SwgSpeciesModel(SwgSpeciesRegistry.SPECIES_WOOKIEE_M, new ModelWookiee<>(true, 0)));
-		//		register(new SwgSpeciesModel(SwgSpeciesRegistry.SPECIES_WOOKIEE_F, new ModelWookiee<>(false, 0)));
-		//		register(SwgSpeciesRegistry.SPECIES_BOTHAN, EMPTY_MODEL);
-		register(SwgSpeciesRegistry.SPECIES_AQUALISH, nemSource(Resources.id("species/aqualish")), null);
-		register(SwgSpeciesRegistry.SPECIES_BITH, nemSource(Resources.id("species/bith")), null);
-		register(SwgSpeciesRegistry.SPECIES_CHAGRIAN, nemSource(Resources.id("species/chagrian")), null);
-		register(SwgSpeciesRegistry.SPECIES_KAMINOAN, nemSource(Resources.id("species/kaminoan")), null);
-		register(SwgSpeciesRegistry.SPECIES_JAWA, nemSource(Resources.id("species/jawa")), null);
-		register(SwgSpeciesRegistry.SPECIES_TOGRUTA, nemSource(Resources.id("species/togruta_m")), nemSource(Resources.id("species/togruta_f")), null);
-		register(SwgSpeciesRegistry.SPECIES_TWILEK, nemSource(Resources.id("species/twilek")), SwgSpeciesRenderer::animateTwilek);
-		register(SwgSpeciesRegistry.SPECIES_HUMAN, nemSource(Resources.id("species/human")), null);
-		register(SwgSpeciesRegistry.SPECIES_CHISS, nemSource(Resources.id("species/human")), null);
-		register(SwgSpeciesRegistry.SPECIES_PANTORAN, nemSource(Resources.id("species/human")), null);
-		register(SwgSpeciesRegistry.SPECIES_WOOKIEE, nemSource(Resources.id("species/wookiee")), null);
+		return Client.NEM_MANAGER.getOverridingBipedModel(Resources.id("species/human"), HUMANOID_BASE_MODEL_ID, true);
 	}
 
-	private static Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> nemSource(Identifier id)
+	public static Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> fullModel(Identifier id)
 	{
-		return NemManager.INSTANCE.getPlayerModel(id, true);
+		return Client.NEM_MANAGER.getPlayerModel(id, true);
+	}
+
+	public static Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> humanoidBase(Identifier id)
+	{
+		return Client.NEM_MANAGER.getOverridingPlayerModel(id, HUMANOID_BASE_MODEL_ID, true);
 	}
 
 	private static void register(SwgSpeciesModel model)
@@ -56,13 +52,13 @@ public class SwgSpeciesRenderer
 		register(new SwgSpeciesModel(SwgSpecies.toModel(speciesSlug, gender), Suppliers.memoize(model::get), animator));
 	}
 
-	private static void register(Identifier speciesSlug, Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> male, Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> female, PlayerSpeciesModelRenderer.Animator animator)
+	public static void register(Identifier speciesSlug, Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> male, Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> female, PlayerSpeciesModelRenderer.Animator animator)
 	{
 		register(speciesSlug, SpeciesGender.MALE, male, animator);
 		register(speciesSlug, SpeciesGender.FEMALE, female, animator);
 	}
 
-	private static void register(Identifier speciesSlug, Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> androgynousModel, PlayerSpeciesModelRenderer.Animator animator)
+	public static void register(Identifier speciesSlug, Supplier<PlayerEntityModel<AbstractClientPlayerEntity>> androgynousModel, PlayerSpeciesModelRenderer.Animator animator)
 	{
 		register(speciesSlug, SpeciesGender.MALE, androgynousModel, animator);
 		register(speciesSlug, SpeciesGender.FEMALE, androgynousModel, animator);
@@ -70,35 +66,7 @@ public class SwgSpeciesRenderer
 
 	public static Identifier getTexture(PlayerEntity player, SwgSpecies species)
 	{
-		var hashCode = species.hashCode();
-		return Client.stackedTextureProvider.getId(String.format("species/%08x", hashCode), () -> Client.TEX_TRANSPARENT, () -> species.getTextureStack(player));
-	}
-
-	public static void animateTwilek(AbstractClientPlayerEntity entity, PlayerEntityModel<AbstractClientPlayerEntity> model, PlayerSpeciesModelRenderer renderer, float tickDelta)
-	{
-		if (!model.head.hasChild("TailBaseL"))
-			return;
-
-		var h = entity.getPitch(tickDelta) / MathUtil.toDegreesf;
-		var h2 = (float)Math.pow(h, 2);
-		var h3 = (float)Math.pow(h, 3);
-		var h4 = (float)Math.pow(h, 4);
-
-		var tailBaseL = model.head.getChild("TailBaseL");
-		var tailMidL = tailBaseL.getChild("TailMidL");
-		var tailLowerL = tailMidL.getChild("TailLowerL");
-
-		var tailBaseR = model.head.getChild("TailBaseR");
-		var tailMidR = tailBaseR.getChild("TailMidR");
-		var tailLowerR = tailMidR.getChild("TailLowerR");
-
-		// https://www.desmos.com/calculator/52kcd69qgc
-		tailBaseL.pitch = tailBaseR.pitch = (-2.34f * h3 + 11.05f * h2 + 3.4f * h + 7.06f) / MathUtil.toDegreesf;
-		tailMidL.pitch = tailMidR.pitch = (5.11f * h4 + 2.01f * h3 - 10.2f * h2 - 26.38f * h - 1.48f) / MathUtil.toDegreesf;
-		tailLowerL.pitch = tailLowerR.pitch = (-3.15f * h4 + 2.57f * h2 - 23.03f * h - 2.93f) / MathUtil.toDegreesf;
-
-		var y = MathHelper.wrapDegrees(entity.getYaw(tickDelta) - MathHelper.lerp(tickDelta, entity.prevBodyYaw, entity.bodyYaw)) / MathUtil.toDegreesf;
-		tailBaseL.roll = Math.max(0, y / 3f);
-		tailBaseR.roll = Math.min(0, y / 3f);
+		var digest = species.digest();
+		return Client.stackedTextureProvider.getId(String.format("species/%s", digest), () -> Client.TEX_TRANSPARENT, () -> species.getTextureStack(player));
 	}
 }
